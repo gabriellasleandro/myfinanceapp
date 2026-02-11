@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💰 Controle Financeiro 2026</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
+.container { max-width: 1150px; margin: 0 auto; padding: 16px; font-size: 13px; }
+h2 { text-align: center; margin-bottom: 2px; color: #1e293b; }
+.subtitle { text-align: center; color: #64748b; margin-bottom: 4px; font-size: 12px; }
+.status { text-align: center; font-size: 10px; margin-bottom: 12px; }
+.status.saving { color: #3b82f6; }
+.status.saved { color: #16a34a; }
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.tab-btn.active { background: #3b82f6; color: #fff; }
+.tab-btn:not(.active) { background: #e2e8f0; color: #475569; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.stat-card { border-radius: 10px; padding: 10px 12px; text-align: center; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 7px 4px; text-align: right; white-space: nowrap; font-weight: 600; font-size: 9.5px; background: #1e293b; color: #fff; }
+td { padding: 6px 4px; }
+.month-sel { display: flex; gap: 3px; flex-wrap: wrap; }
+.month-btn { padding: 5px 9px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; }
+.month-btn.active { background: #3b82f6; color: #fff; }
+.month-btn:not(.active) { background: #e2e8f0; color: #475569; }
+.progress-bar { background: #e2e8f0; border-radius: 8px; height: 12px; margin-bottom: 16px; overflow: hidden; }
+.progress-fill { background: #22c55e; height: 12px; border-radius: 8px; transition: width 0.3s; }
+.budget-card { background: #fff; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0; }
+.budget-card.over { border-color: #fca5a5; }
+.form-card { background: #f8fafc; border-radius: 10px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 8px; align-items: end; }
+.form-label { font-size: 10px; font-weight: 600; color: #64748b; display: block; margin-bottom: 4px; }
+input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+.btn-add { background: #22c55e; color: #fff; }
+.btn-cancel { background: #e2e8f0; color: #64748b; padding: 8px 12px; }
+.btn-dashed { width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc; cursor: pointer; font-size: 13px; font-weight: 600; color: #3b82f6; margin-bottom: 16px; }
+.alert { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 11px; }
+.alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.real-tag { font-size:8px;padding:1px 4px;border-radius:3px;background:#dbeafe;color:#1d4ed8;margin-left:3px;vertical-align:middle; }
+.est-tag { font-size:8px;padding:1px 4px;border-radius:3px;background:#f1f5f9;color:#94a3b8;margin-left:3px;vertical-align:middle; }
+.edit-val { font-weight:700;cursor:pointer;border-bottom:1px dashed #94a3b8;padding-bottom:1px; }
+.edit-val:hover { color:#3b82f6 !important; }
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  table { font-size: 10px; }
+  th, td { padding: 4px 2px; }
+}
+</style>
+</head>
+<body>
+<div class="container" id="app"><div style="text-align:center;padding:40px;color:#64748b">Carregando...</div></div>
+
+<script>
+const FX=5.55,GAB=13600,GABI=1120*FX;
+const gc={2:2,3:2,4:2,5:3,6:2,7:2,8:2,9:2,10:3,11:2,12:2};
+
+// === FIXAS: só contas fixas puras (sem duplicar variáveis) ===
+const fixedBase=[
+  {id:"aluguel",name:"Aluguel",val:3000},
+  {id:"escola",name:"Escola",val:1100},
+  {id:"ipva_carro",name:"IPVA Carro",valByMonth:{2:930,3:930,4:930}},
+  {id:"ipva_moto",name:"IPVA Moto",valByMonth:{2:400}},
+  {id:"ir",name:"Imposto de Renda",valByMonth:{2:500,3:500,4:500,5:500,6:500,7:500,8:500,9:500,10:500,11:500,12:500}},
+  {id:"contador",name:"Contador",val:220},
+  {id:"agua",name:"Água",val:200},
+  {id:"energia",name:"Energia",val:200},
+  {id:"academia",name:"Academia",val:200},
+  {id:"piscineiro",name:"Piscineiro",val:200},
+  {id:"internet",name:"Internet/Amazon",val:140},
+  {id:"celular",name:"Celular",val:110},
+];
+const tFixed=0; // base dinâmico por mês
+
+// === VARIÁVEIS: categorias com orçamento mensal ===
+const budgetCats=[
+  {id:"alimentacao",name:"🍽️ Alimentação",budget:3000,weekly:true},
+  {id:"limpeza",name:"🧹 Limpeza",budget:800,weekly:true},
+  {id:"conforto",name:"🛋️ Conforto",budget:300},
+  {id:"conforto_2025",name:"🛋️ Conforto 2025",budget:0},
+  {id:"viagem_eua",name:"✈️ Viagem EUA",budget:0},
+  {id:"cartao_emprestado",name:"💳 Cartão Emprestado",budget:0},
+  {id:"gasolina_v",name:"⛽ Gasolina",budget:700},
+  {id:"formula_v",name:"🍼 Fórmula/Fraldas",budget:300},
+  {id:"educacao",name:"🎓 Atividades",budget:400},
+  {id:"eventos",name:"🎉 Eventos/Extras",budget:1500},
+];
+const totalBase = tFixed + 0; // placeholder (estimativa é dinâmica)
+
+const consM={2:405,3:410,4:415,5:420,6:425,7:430,8:435,9:440,10:445,11:450,12:455};
+function buildWeeklyConsSchedule() {
+  const out = [];
+  let d = new Date(Date.UTC(2026, 1, 16)); // 16/02/2026
+  const end = new Date(Date.UTC(2026, 7, 10)); // 10/08/2026
+  let idx = 0;
+  while (d <= end) {
+    const amount = 169.5 + (idx * 1.5);
+    const month = d.getUTCMonth() + 1;
+    const id = d.toISOString().slice(0,10);
+    const dd = String(d.getUTCDate()).padStart(2,'0');
+    const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    const yyyy = d.getUTCFullYear();
+    out.push({id, month, amount, label:`${dd}/${mm}/${yyyy}`});
+    d.setUTCDate(d.getUTCDate() + 7);
+    idx++;
+  }
+  return out;
+}
+const consWeeklySchedule = buildWeeklyConsSchedule();
+const consS = consWeeklySchedule.reduce((acc,w)=>{
+  acc[w.month] = (acc[w.month] || 0) + w.amount;
+  return acc;
+}, {});
+const extraIncome={2:10100,3:15500,10:5340};
+const months=["Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const monthNums=[2,3,4,5,6,7,8,9,10,11,12];
+const cards = [
+  {id:"nubank", icon:"🟪"},
+  {id:"bradesco", icon:"🟥"}
+];
+const fmt=v=>v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+const instDetail=[
+  {id:"viagem_bradesco",name:"Viagem EUA - Bradesco",pm:2451.63,rem:[2],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"viagem_nubank",name:"Viagem EUA - Nubank",pm:19092.73,rem:[3],fixed:true,cat:"viagem_eua",card:"nubank"},
+  {id:"casas_bahia",name:"Casas Bahia (10x)",pm:339.05,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"amazon_frigela",name:"Amazon Frigela (10x)",pm:261.80,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"amazon_webcont",name:"Amazon Webcont (10x)",pm:238.90,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"magalu",name:"Magalu (10x)",pm:200.77,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"mlp_magalu",name:"MLP Magalu (10x)",pm:161.75,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"american_airlines",name:"American Airlines (6x)",pm:1682.14,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"mentoria_pratica",name:"Mentoria Prática (4x)",pm:222.72,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
+  {id:"leonardo_faria",name:"Leonardo de Faria (5x)",pm:1010.00,rem:[2,3,4,5],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"shopee_dulcecortina",name:"Shopee DulceCortina (10x)",pm:179.86,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"pro_seculo",name:"PRO Seculo (2x)",pm:375.00,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
+  {id:"azulvia",name:"Azulvia (4x)",pm:634.25,rem:[2,3,4],fixed:true,cat:"cartao_emprestado",card:"bradesco"},
+  {id:"rentcars",name:"Rentcars (3x)",pm:694.13,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
+];
+
+let state = {
+  tab: "resumo", trackMonth: 2,
+  expenses: {}, fixedPaid: {}, fixedActual: {},
+  customFixed: [],
+  showFixedForm: false,
+  newFixed: {name:"", val:""},
+  showForm: false,
+  newExp: {cat: "alimentacao", desc: "", val: "", payment: "dinheiro", card: "bradesco"},
+  varClosed: {},
+  cardPaid: {},
+  consPaid: {},
+  consWeeklyPaid: {},
+  cardDueDay: {nubank: 10, bradesco: 20},
+  customInstallments: [],
+  showInstForm: false,
+  newInst: {name: "", pm: "", months: "", cat: "alimentacao", card: "bradesco"},
+  catOverrides: {},
+  instCatOverrides: {},
+  incomes: {}, showIncomeForm: false,
+  newIncome: {desc: "", estimated: "", actual: ""}
+};
+
+let storageOk = false;
+let cloudOk = false;
+const STORAGE_KEY = 'budget-2026-v3';
+const SUPABASE_URL = 'https://sgekfcrkfgqlyvjhshgn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_9BvhSBtOri9h8U9SNEYenQ_swFrZ1za';
+const SUPABASE_TABLE = 'app_state';
+const SUPABASE_ROW_ID = STORAGE_KEY;
+
+async function testStorage() {
+  if (!window.localStorage || typeof window.localStorage.setItem !== 'function') return false;
+  try {
+    window.localStorage.setItem('budget-test', 'ok');
+    window.localStorage.removeItem('budget-test');
+    return true;
+  } catch(e) { return false; }
+}
+
+function applyPayload(d) {
+  state.expenses = d.expenses || {};
+  state.fixedPaid = d.fixedPaid || {};
+  state.fixedActual = d.fixedActual || {};
+  state.customInstallments = d.customInstallments || [];
+  state.catOverrides = d.catOverrides || {};
+  state.instCatOverrides = d.instCatOverrides || {};
+  state.customFixed = d.customFixed || [];
+  state.varClosed = d.varClosed || {};
+  state.cardPaid = d.cardPaid || {};
+  state.consPaid = d.consPaid || {};
+  state.consWeeklyPaid = d.consWeeklyPaid || {};
+  state.cardDueDay = d.cardDueDay || {nubank: 10, bradesco: 20};
+  // Migração: modelo antigo era boolean por mês; agora é por mês+cartão.
+  for (const mm of monthNums) {
+    if (state.cardPaid[mm] === true) {
+      state.cardPaid[`${mm}-nubank`] = true;
+      state.cardPaid[`${mm}-bradesco`] = true;
+      delete state.cardPaid[mm];
+    }
+  }
+  if (state.newExp && !state.newExp.card) state.newExp.card = "bradesco";
+  if (state.newInst && !state.newInst.card) state.newInst.card = "bradesco";
+  for (const mm of monthNums) {
+    state.expenses[mm] = (state.expenses[mm] || []).map(e => {
+      if (e.payment === 'cartao' && !e.card) return {...e, card: inferCardFromText(e.desc)};
+      return e;
+    });
+  }
+  state.customInstallments = (state.customInstallments || []).map(ci => ({
+    ...ci,
+    card: ci.card || inferCardFromText(ci.name)
+  }));
+  state.incomes = d.incomes || {};
+}
+
+async function supabaseSelect() {
+  const url = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+  if (!res.ok) throw new Error(`Supabase read failed: ${res.status}`);
+  const rows = await res.json();
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0]?.payload || null;
+}
+
+async function supabaseUpsert(payload) {
+  const url = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
+  const body = [{
+    id: SUPABASE_ROW_ID,
+    payload,
+    updated_at: new Date().toISOString()
+  }];
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`Supabase write failed: ${res.status}`);
+}
+
+async function loadData() {
+  // 1. Testar se localStorage funciona
+  storageOk = await testStorage();
+
+  // 2. Tentar carregar da nuvem primeiro
+  try {
+    const cloudPayload = await supabaseSelect();
+    cloudOk = true;
+    if (cloudPayload) {
+      applyPayload(cloudPayload);
+      if (storageOk) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudPayload));
+      return;
+    }
+  } catch(e) {
+    cloudOk = false;
+  }
+
+  // 3. Fallback local
+  if (storageOk) {
+    try {
+      const r = window.localStorage.getItem(STORAGE_KEY);
+      if (r) {
+        applyPayload(JSON.parse(r));
+      }
+    } catch(e) { /* Key doesn't exist yet, that's fine */ }
+  }
+}
+
+async function saveData() {
+  const payload = {
+    expenses: state.expenses, fixedPaid: state.fixedPaid,
+    fixedActual: state.fixedActual, customInstallments: state.customInstallments,
+    catOverrides: state.catOverrides,
+    instCatOverrides: state.instCatOverrides,
+    customFixed: state.customFixed,
+    varClosed: state.varClosed,
+    cardPaid: state.cardPaid,
+    consPaid: state.consPaid,
+    consWeeklyPaid: state.consWeeklyPaid,
+    cardDueDay: state.cardDueDay,
+    incomes: state.incomes
+  };
+
+  let localSaved = false;
+  if (storageOk) {
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); localSaved = true; } catch(e) {}
+  }
+
+  let cloudSaved = false;
+  try {
+    await supabaseUpsert(payload);
+    cloudSaved = true;
+    cloudOk = true;
+  } catch(e) {
+    cloudOk = false;
+  }
+
+  showSaveStatus(localSaved, cloudSaved);
+}
+
+function showSaveStatus(localSaved, cloudSaved) {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  if (cloudSaved) {
+    el.innerHTML = '✅ Salvo na nuvem';
+    el.style.color = '#16a34a';
+  } else if (localSaved) {
+    el.innerHTML = '✅ Salvo local (offline)';
+    el.style.color = '#0284c7';
+  } else {
+    el.innerHTML = '⚠️ Falha ao salvar. Use Exportar Backup';
+    el.style.color = '#d97706';
+  }
+}
+
+function gk(m,id) { return `${m}-${id}`; }
+function getCategories() {
+  return budgetCats.map(c => ({...c, ...(state.catOverrides?.[c.id] || {})}));
+}
+function getCategoryById(id) {
+  return getCategories().find(c => c.id === id);
+}
+function getPaymentMethodLabel(e) {
+  if (e.payment === 'cartao') return `💳 ${getCardLabel(e.card || 'bradesco')}`;
+  return '💵';
+}
+function getFixedBaseValue(m, f) {
+  if (f.valByMonth) return f.valByMonth[m] ?? 0;
+  return f.val ?? 0;
+}
+function getFixedBaseTotal(m) {
+  return getAllFixed().reduce((s,f)=>s+getFixedBaseValue(m,f),0);
+}
+function inferCardFromText(text) {
+  const t = String(text || '').toLowerCase();
+  if (t.includes('bradesco')) return 'bradesco';
+  if (t.includes('nubank')) return 'nubank';
+  return 'bradesco';
+}
+function getCardLabel(cardId) {
+  const c = cards.find(c => c.id === cardId);
+  return c ? c.icon : '🟥';
+}
+function getCardDueDay(cardId) {
+  const d = parseInt(state.cardDueDay?.[cardId], 10);
+  return isNaN(d) ? 10 : d;
+}
+function updateCardDueDay(cardId, val) {
+  const day = parseInt(val, 10);
+  if (isNaN(day) || day < 1 || day > 31) return;
+  state.cardDueDay[cardId] = day;
+  saveData();
+  render();
+}
+function isConsPaid(m, type) { return !!state.consPaid[`${m}-${type}`]; }
+function toggleConsPaid(m, type) {
+  const k = `${m}-${type}`;
+  state.consPaid[k] = !state.consPaid[k];
+  saveData();
+  render();
+}
+function isWeeklyConsPaid(id) { return !!state.consWeeklyPaid[id]; }
+function toggleWeeklyConsPaid(id) {
+  state.consWeeklyPaid[id] = !state.consWeeklyPaid[id];
+  saveData();
+  render();
+}
+function getConfirmedConsSpend(m) {
+  const cm = consM[m] || 0;
+  const weekly = consWeeklySchedule
+    .filter(w => w.month === m && isWeeklyConsPaid(w.id))
+    .reduce((s,w)=>s+w.amount,0);
+  return (isConsPaid(m, 'm') ? cm : 0) + weekly;
+}
+function getCatBudget(cat, m) {
+  return cat.budget || 0;
+}
+function getVarEstimate(m) {
+  return getCategories().reduce((s,c)=>s+(getCatBudget(c,m)>0?getCatBudget(c,m):0),0);
+}
+function isPaid(m,id) { return !!state.fixedPaid[gk(m,id)]; }
+function getActual(m,id,def) { return state.fixedActual[gk(m,id)] ?? def; }
+function normalizeInstMonths(ms) {
+  const clean = ms.map(n=>parseInt(n)).filter(n=>!isNaN(n));
+  return [...new Set(clean)].sort((a,b)=>a-b);
+}
+function getInstallmentItems(m) {
+  const allInst = [...instDetail, ...state.customInstallments];
+  const monthLabel = months[monthNums.indexOf(m)] || '';
+  return allInst
+    .filter(inst => Array.isArray(inst.rem) && inst.rem.includes(m))
+    .map(inst => {
+      const rem = normalizeInstMonths(inst.rem || []);
+      const idx = rem.indexOf(m);
+      const total = rem.length || inst.total || 0;
+      const part = total && idx >= 0 ? ` ${monthLabel} (${idx+1}/${total})` : (monthLabel ? ` ${monthLabel}` : '');
+      const baseCat = state.instCatOverrides?.[inst.id] || inst.cat || "eventos";
+      return {
+        cat: baseCat,
+        desc: `${inst.name}${part}`,
+        val: inst.pm,
+        payment: "cartao",
+        card: inst.card || inferCardFromText(inst.name),
+        isInst: true,
+        instId: inst.id,
+        instName: inst.name,
+        instPos: idx >= 0 ? idx+1 : null,
+        instTotal: total
+      };
+    });
+}
+function getMonthBaseExp(m) { return state.expenses[m] || []; }
+function getMonthExp(m) {
+  const base = getMonthBaseExp(m);
+  const inst = getInstallmentItems(m);
+  return [...base, ...inst];
+}
+function catSpent(m,catId) { return getMonthExp(m).filter(e=>e.cat===catId).reduce((s,e)=>s+e.val,0); }
+function getMonthIncomes(m) { return state.incomes[m] || []; }
+function getMonthCardTotal(m, cardId) {
+  return getMonthExp(m)
+    .filter(e => e.payment === 'cartao' && (e.card || 'bradesco') === cardId)
+    .reduce((s,e)=>s+e.val,0);
+}
+function getCashVarSpend(m) {
+  return getMonthExp(m)
+    .filter(e => e.payment !== 'cartao')
+    .reduce((s,e)=>s+e.val,0);
+}
+function isCardPaid(m, cardId) { return !!state.cardPaid[`${m}-${cardId}`]; }
+function toggleCardPaid(m, cardId) {
+  const k = `${m}-${cardId}`;
+  state.cardPaid[k] = !state.cardPaid[k];
+  saveData(); render();
+}
+
+function togglePaid(m,id) { state.fixedPaid[gk(m,id)] = !state.fixedPaid[gk(m,id)]; saveData(); render(); }
+function updateActual(m,id,val) { state.fixedActual[gk(m,id)] = val; saveData(); render(); }
+
+function editFixed(m, id, current) {
+  const f = fixedBase.find(f=>f.id===id);
+  const base = getFixedBaseValue(m, f);
+  const nv = prompt(`Valor real para ${f.name}:`, current ?? base);
+  if (nv !== null && !isNaN(parseFloat(nv))) updateActual(m, id, parseFloat(nv));
+}
+
+function addIncome() {
+  if (!state.newIncome.desc || !state.newIncome.estimated) return;
+  const list = [...getMonthIncomes(state.trackMonth), {
+    desc: state.newIncome.desc, estimated: parseFloat(state.newIncome.estimated),
+    actual: state.newIncome.actual ? parseFloat(state.newIncome.actual) : null,
+    received: false, id: Date.now()
+  }];
+  state.incomes[state.trackMonth] = list;
+  state.newIncome = {desc: "", estimated: "", actual: ""};
+  state.showIncomeForm = false; saveData(); render();
+}
+function removeIncome(m, idx) { const l=[...getMonthIncomes(m)]; l.splice(idx,1); state.incomes[m]=l; saveData(); render(); }
+function toggleIncomeReceived(m, idx) { const l=[...getMonthIncomes(m)]; l[idx].received=!l[idx].received; state.incomes[m]=l; saveData(); render(); }
+function editIncome(m, idx, current) {
+  const nv = prompt('Valor real recebido:', current || '');
+  if (nv !== null && nv !== '') { const p=parseFloat(nv); if(!isNaN(p)){const l=[...getMonthIncomes(m)];l[idx].actual=p;state.incomes[m]=l;saveData();render();}}
+}
+function toggleIncomeForm() { state.showIncomeForm = !state.showIncomeForm; render(); }
+function updateNewIncome(f, v) { state.newIncome[f] = v; }
+
+function addExpense() {
+  if (!state.newExp.val || !state.newExp.desc) return;
+  const method = state.newExp.payment || "dinheiro";
+  const isCard = method !== "dinheiro";
+  const card = method === "cartao_nubank" ? "nubank" : method === "cartao_bradesco" ? "bradesco" : null;
+  const list = [...getMonthBaseExp(state.trackMonth), {
+    cat: state.newExp.cat, desc: state.newExp.desc,
+    val: parseFloat(state.newExp.val),
+    payment: isCard ? "cartao" : "dinheiro",
+    card
+  }];
+  state.expenses[state.trackMonth] = list;
+  state.newExp = {cat: "alimentacao", desc: "", val: "", payment: "dinheiro", card: "bradesco"};
+  state.showForm = false; saveData(); render();
+}
+function removeExp(m,idx) { const l=[...getMonthBaseExp(m)]; l.splice(idx,1); state.expenses[m]=l; saveData(); render(); }
+function updateExpCategory(m, idx, catId) {
+  const l = [...getMonthBaseExp(m)];
+  if (!l[idx]) return;
+  l[idx].cat = catId;
+  state.expenses[m] = l;
+  saveData(); render();
+}
+function updateInstallmentCategory(instId, catId) {
+  if (!instId) return;
+  const i = state.customInstallments.findIndex(ci => ci.id === instId);
+  if (i >= 0) {
+    state.customInstallments[i].cat = catId;
+  } else {
+    state.instCatOverrides[instId] = catId;
+  }
+  saveData(); render();
+}
+
+function toggleVarClosed(m, catId) {
+  const k = `${m}-${catId}`;
+  state.varClosed[k] = !state.varClosed[k];
+  saveData(); render();
+}
+
+function addFixed() {
+  if (!state.newFixed.name || !state.newFixed.val) return;
+  const v = parseFloat(state.newFixed.val);
+  if (isNaN(v)) return;
+  state.customFixed.push({id:`custom_${Date.now()}`,name:state.newFixed.name,val:v});
+  state.newFixed = {name:"",val:""};
+  state.showFixedForm = false;
+  saveData(); render();
+}
+function removeFixed(id) {
+  const idx = state.customFixed.findIndex(f=>f.id===id);
+  if (idx>=0) state.customFixed.splice(idx,1);
+  saveData(); render();
+}
+function toggleFixedForm() { state.showFixedForm = !state.showFixedForm; render(); }
+function updateNewFixed(f,v) { state.newFixed[f] = v; }
+
+function addInstallment() {
+  if (!state.newInst.name || !state.newInst.pm || !state.newInst.months) return;
+  const ms = normalizeInstMonths(state.newInst.months.split(','));
+  if (!ms.length) return;
+  state.customInstallments.push({
+    name: state.newInst.name,
+    pm: parseFloat(state.newInst.pm),
+    rem: ms,
+    total: ms.length,
+    cat: state.newInst.cat || "eventos",
+    card: state.newInst.card || "bradesco",
+    fixed: false,
+    id: Date.now()
+  });
+  state.newInst = {name:"",pm:"",months:"",cat:"alimentacao",card:"nubank"}; state.showInstForm = false; saveData(); render();
+}
+function removeInstallment(idx) { state.customInstallments.splice(idx,1); saveData(); render(); }
+function toggleInstForm() { state.showInstForm = !state.showInstForm; render(); }
+function updateNewInst(f,v) { state.newInst[f] = v; }
+function toggleForm() { state.showForm = !state.showForm; render(); }
+function updateNewExp(f,v) { state.newExp[f] = v; }
+
+function editVarCap(id, m) {
+  const cat = getCategoryById(id);
+  if (!cat) return;
+  const current = getCatBudget(cat, m);
+  const raw = prompt('Novo cap mensal da categoria:', String(current ?? 0));
+  if (raw === null) return;
+  const nb = parseFloat(String(raw).replace(',','.'));
+  if (isNaN(nb) || nb < 0) return;
+  state.catOverrides[id] = {
+    ...state.catOverrides[id],
+    budget: nb
+  };
+  saveData();
+  render();
+}
+
+function getAllFixed() { return [...fixedBase, ...state.customFixed]; }
+function fixedPaidCount(m) { return getAllFixed().filter(f=>isPaid(m,f.id)).length; }
+function fixedPaidTotal(m) { return getAllFixed().reduce((s,f)=>isPaid(m,f.id)?s+getActual(m,f.id,getFixedBaseValue(m,f)):s,0); }
+function fixedTotalActual(m) { return getAllFixed().reduce((s,f)=>s+getActual(m,f.id,getFixedBaseValue(m,f)),0); }
+
+// ========== CORE: calculateData ==========
+function calculateData() {
+  const data = []; let cum = 0;
+  for (let i = 0; i < monthNums.length; i++) {
+    const m = monthNums[i];
+    
+    // === RECEITAS ===
+    const monthInc = getMonthIncomes(m);
+    let income, incIsReal = false;
+    if (monthInc.length > 0) {
+      income = monthInc.reduce((s, inc) => s + (inc.received ? (inc.actual||inc.estimated) : inc.estimated), 0);
+      incIsReal = monthInc.some(inc => inc.received);
+    } else {
+      income = GAB + GABI * gc[m] + (extraIncome[m] || 0);
+    }
+    
+    // === FIXAS: pago→real, não pago→estimativa ===
+    let fixedUsed = 0, fixIsReal = false;
+    for (const f of getAllFixed()) {
+      const base = getFixedBaseValue(m, f);
+      if (isPaid(m, f.id)) { fixedUsed += getActual(m, f.id, base); fixIsReal = true; }
+      else { fixedUsed += base; }
+    }
+    
+    // === VARIÁVEIS: por categoria, usa real se marcada como concluída ===
+    const cats = getCategories();
+    let varUsed = 0, varIsReal = false;
+    for (const c of cats) {
+      const budget = getCatBudget(c, m);
+      const spent = catSpent(m, c.id);
+      const closed = !!state.varClosed[`${m}-${c.id}`];
+      if (budget <= 0) { varUsed += spent; if (spent > 0) varIsReal = true; }
+      else if (closed) { varUsed += spent; varIsReal = true; }
+      else { varUsed += budget; }
+    }
+    
+    // === PARCELAS ===
+    const instTotal = getInstallmentItems(m).reduce((s, inst) => s + inst.val, 0);
+    
+    // === OUTROS ===
+    const cm = consM[m]||0, cs = consS[m]||0;
+    const totalExp = fixedUsed + varUsed + cm + cs;
+    const net = income - totalExp;
+    cum += net;
+    
+    data.push({ month:months[i], m, income, fixedUsed, varUsed, cm, cs, inst:instTotal, totalExp, net, cum, incIsReal, fixIsReal, varIsReal });
+  }
+  return data;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const data = calculateData();
+  app.innerHTML = `
+    <h2>💰 Controle Financeiro 2026</h2>
+    <p class="subtitle">Gabriel & Gabriella • Fevereiro a Dezembro</p>
+    <p class="status" id="saveStatus" style="color:${cloudOk?'#16a34a':storageOk?'#0284c7':'#d97706'}">${cloudOk?'✅ Nuvem conectada':storageOk?'✅ Modo local':'⚠️ Sem persistência garantida'}</p>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px">
+      <button onclick="exportData()" style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">📥 Exportar Backup</button>
+      <button onclick="document.getElementById('importFile').click()" style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">📤 Importar Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+    <div class="tabs">
+      ${['resumo|📊 Resumo','receitas|💵 Receitas','fixas|✅ Fixas','variaveis|📝 Variáveis','cartao|💳 Cartão','consorcios|🏦 Consórcios'].map(t=>{
+        const [id,label]=t.split('|');
+        return `<button class="tab-btn ${state.tab===id?'active':''}" onclick="changeTab('${id}')">${label}</button>`;
+      }).join('')}
+    </div>
+    ${state.tab==='resumo'?renderResumo(data):''}
+    ${state.tab==='receitas'?renderReceitas():''}
+    ${state.tab==='fixas'?renderFixas():''}
+    ${state.tab==='variaveis'?renderVariaveis():''}
+    ${state.tab==='cartao'?renderCartao():''}
+    ${state.tab==='consorcios'?renderConsorcios():''}
+  `;
+}
+
+function changeTab(t) { state.tab = t; render(); }
+function changeMonth(m) { state.trackMonth = m; render(); }
+
+function monthSelector() {
+  return `<div class="month-sel">${monthNums.map((mn,i)=>`<button class="month-btn ${state.trackMonth===mn?'active':''}" onclick="changeMonth(${mn})">${months[i]}</button>`).join('')}</div>`;
+}
+
+// ==================== RESUMO ====================
+function renderResumo(data) {
+  const lastCum = data[data.length-1].cum;
+  const m = state.trackMonth;
+  const mData = data.find(d => d.m === m);
+  const mi = monthNums.indexOf(m);
+
+  // Saldo em conta real atual: considera tudo que já foi marcado como concluído
+  let saldo = 0;
+  for (const mm of monthNums) {
+    const monthInc = getMonthIncomes(mm);
+    const incRec = monthInc.filter(i=>i.received).reduce((s,i)=>s+(i.actual||i.estimated),0);
+    const fixPaid = fixedPaidTotal(mm);
+    const varCashConfirmed = getCashVarSpend(mm);
+    const cardPaid = cards.reduce((s,c)=>s + (isCardPaid(mm, c.id) ? getMonthCardTotal(mm, c.id) : 0), 0);
+    const consPaid = getConfirmedConsSpend(mm);
+    saldo += incRec - fixPaid - varCashConfirmed - cardPaid - consPaid;
+  }
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="color:#1e293b;margin:0">📊 Resumo — ${months[mi]} 2026</h3>
+      ${monthSelector()}
+    </div>
+    <div class="grid-4">
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:11px;color:#64748b">Receita ${months[mi]}</div>
+        <div style="font-size:17px;font-weight:700;color:#1d4ed8">R$ ${fmt(mData.income)}</div>
+        <div style="font-size:9px;margin-top:2px">${mData.incIsReal?'<span class="real-tag">REAL</span>':'<span class="est-tag">ESTIMADO</span>'}</div>
+      </div>
+      <div class="stat-card" style="background:#fef2f2">
+        <div style="font-size:11px;color:#64748b">Despesas ${months[mi]}</div>
+        <div style="font-size:17px;font-weight:700;color:#dc2626">R$ ${fmt(mData.totalExp)}</div>
+        <div style="font-size:9px;margin-top:2px">${mData.fixIsReal||mData.varIsReal?'<span class="real-tag">PARCIAL REAL</span>':'<span class="est-tag">ESTIMADO</span>'}</div>
+      </div>
+      <div class="stat-card" style="background:${saldo>=0?'#f0fdf4':'#fef2f2'}">
+        <div style="font-size:11px;color:#64748b">Saldo em Conta (Real)</div>
+        <div style="font-size:17px;font-weight:700;color:${saldo>=0?'#16a34a':'#dc2626'}">R$ ${fmt(saldo)}</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px">Valor atual: receitas recebidas - fixas pagas - dinheiro lançado - faturas pagas - consórcios pagos</div>
+      </div>
+      <div class="stat-card" style="background:${lastCum>0?'#f0fdf4':'#fef2f2'}">
+        <div style="font-size:11px;color:#64748b">Poupança Dez/26</div>
+        <div style="font-size:17px;font-weight:700;color:${lastCum>=0?'#16a34a':'#dc2626'}">R$ ${fmt(lastCum)}</div>
+      </div>
+    </div>
+    
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0">
+      <table style="font-size:10px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="text-align:left;padding-left:6px">Mês</th><th>Receita</th><th>Fixas</th><th>Variáveis</th>
+          <th>Consórcios</th><th>Total</th><th>Result.</th><th>Poupança</th>
+        </tr></thead>
+        <tbody>
+          ${data.map((d,i)=>{
+            const hasReal = d.incIsReal || d.fixIsReal || d.varIsReal;
+            const b = v => v ? 700 : 400;
+            return `
+            <tr style="background:${hasReal?'#eff6ff':i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:6px;font-weight:700">${d.month}${hasReal?'<span style="font-size:8px;color:#3b82f6;margin-left:2px">●</span>':''}</td>
+              <td style="padding:6px;text-align:right;color:#1d4ed8;font-weight:${b(d.incIsReal)}">${fmt(d.income)}</td>
+              <td style="padding:6px;text-align:right;color:#dc2626;font-weight:${b(d.fixIsReal)}">${fmt(d.fixedUsed)}</td>
+              <td style="padding:6px;text-align:right;color:#d97706;font-weight:${b(d.varIsReal)}">${fmt(d.varUsed)}</td>
+              <td style="padding:6px;text-align:right;color:${(d.cm+d.cs)>0?'#ea580c':'#cbd5e1'}">${(d.cm+d.cs)>0?fmt(d.cm+d.cs):'-'}</td>
+              <td style="padding:6px;text-align:right;font-weight:700">${fmt(d.totalExp)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700;color:${d.net>=0?'#16a34a':'#dc2626'};background:${d.net>=0?'#f0fdf4':'#fef2f2'};border-radius:4px">${d.net>=0?'+':''}${fmt(d.net)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700;color:${d.cum>=0?'#16a34a':'#dc2626'};font-size:11px">R$ ${fmt(d.cum)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>●</strong> Azul = dados reais · <strong>Negrito</strong> = confirmado · Normal = estimativa
+    </div>
+    <div class="alert alert-warning">
+      <strong>⚠️ Meses críticos:</strong> Fev e mar (viagem). A partir de junho a sobra cresce.
+    </div>
+  `;
+}
+
+// ==================== FIXAS ====================
+function renderFixas() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const pc = fixedPaidCount(m), pt = fixedPaidTotal(m), ta = fixedTotalActual(m);
+  const tb = getFixedBaseTotal(m);
+  const allFixed = getAllFixed();
+  const activeFixed = allFixed.filter(f=>getFixedBaseValue(m,f)>0);
+  const pcActive = activeFixed.filter(f=>isPaid(m,f.id)).length;
+  const pct = activeFixed.length ? (pcActive / activeFixed.length) * 100 : 0;
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="color:#1e293b;margin:0">✅ Contas Fixas — ${months[mi]} 2026</h3>
+      ${monthSelector()}
+    </div>
+    <div class="grid-4">
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:10px;color:#3b82f6;font-weight:600">PAGAS</div>
+        <div style="font-size:22px;font-weight:800;color:#1d4ed8">${pcActive}/${activeFixed.length}</div>
+      </div>
+      <div class="stat-card" style="background:#f0fdf4">
+        <div style="font-size:10px;color:#16a34a;font-weight:600">VALOR PAGO</div>
+        <div style="font-size:16px;font-weight:700;color:#16a34a">R$ ${fmt(pt)}</div>
+      </div>
+      <div class="stat-card" style="background:#fef2f2">
+        <div style="font-size:10px;color:#dc2626;font-weight:600">FALTA PAGAR</div>
+        <div style="font-size:16px;font-weight:700;color:#dc2626">R$ ${fmt(tb-pt)}</div>
+      </div>
+      <div class="stat-card" style="background:#f8fafc">
+        <div style="font-size:10px;color:#64748b;font-weight:600">TOTAL MÊS</div>
+        <div style="font-size:16px;font-weight:700;color:#334155">R$ ${fmt(ta)}</div>
+        ${ta!==tb?`<div style="font-size:10px;color:${ta>tb?'#dc2626':'#16a34a'};margin-top:2px">${ta>tb?'+':''}R$ ${fmt(ta-tb)} vs base</div>`:''}
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    ${!state.showFixedForm?`
+      <button class="btn-dashed" onclick="toggleFixedForm()">+ Adicionar Conta Fixa</button>
+    `:`
+      <div class="form-card" style="margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">NOME DA CONTA</label>
+            <input placeholder="Ex: Seguro carro" value="${state.newFixed.name}" oninput="updateNewFixed('name',this.value)"></div>
+          <div><label class="form-label">VALOR BASE (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newFixed.val}" oninput="updateNewFixed('val',this.value)"></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addFixed()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleFixedForm()">✕</button>
+          </div>
+        </div>
+      </div>
+    `}
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:center;width:40px">Pago</th>
+          <th style="padding:8px 10px;text-align:left">Conta</th>
+          <th style="padding:8px 10px;text-align:right">Base</th>
+          <th style="padding:8px 10px;text-align:right">Valor Real</th>
+          <th style="padding:8px 10px;text-align:center;width:30px"></th>
+        </tr></thead>
+        <tbody>
+          ${activeFixed.map((f,i)=>{
+            const paid = isPaid(m, f.id);
+            const base = getFixedBaseValue(m, f);
+            const actual = getActual(m, f.id, base);
+            const diff = actual - base;
+            const canRemove = f.id.startsWith('custom_');
+            return `
+              <tr style="background:${paid?'#f0fdf4':i%2===0?'#fff':'#f8fafc'};opacity:${paid?0.75:1}">
+                <td style="padding:7px 10px;text-align:center">
+                  <input type="checkbox" ${paid?'checked':''} onchange="togglePaid(${m},'${f.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+                </td>
+                <td style="padding:7px 10px;font-weight:600;text-decoration:${paid?'line-through':'none'};color:${paid?'#94a3b8':'#1e293b'}">${f.name}</td>
+                <td style="padding:7px 10px;text-align:right;color:#94a3b8;font-size:11px">R$ ${fmt(base)}</td>
+                <td style="padding:7px 10px;text-align:right">
+                  <span class="edit-val" style="color:${diff!==0?'#1d4ed8':'#334155'}" onclick="editFixed(${m},'${f.id}',${actual})">
+                    R$ ${fmt(actual)}
+                    ${diff!==0?`<span style="font-size:9px;margin-left:4px;color:${diff>0?'#dc2626':'#16a34a'}">(${diff>0?'+':''}${fmt(diff)})</span>`:''}
+                  </span>
+                </td>
+                <td style="padding:7px 10px;text-align:center">
+                  ${canRemove?`<button onclick="removeFixed('${f.id}')" style="border:none;background:none;cursor:pointer;font-size:14px">🗑</button>`:''}
+                </td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+          <td></td><td style="padding:8px 10px">TOTAL</td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(tb)}</td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(ta)}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div class="alert alert-info">
+      <strong>💡</strong> Clique no <strong>valor real</strong> de qualquer conta para ajustar. Marque como "pago" ✓ para refletir no Resumo.
+    </div>
+  `;
+}
+
+// ==================== RECEITAS ====================
+function renderReceitas() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const inc = getMonthIncomes(m);
+  const totRec = inc.filter(i=>i.received).reduce((s,i)=>s+(i.actual||i.estimated),0);
+  const totEst = inc.reduce((s,i)=>s+i.estimated,0);
+  const totAct = inc.reduce((s,i)=>s+(i.actual||i.estimated),0);
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="color:#1e293b;margin:0">💵 Receitas — ${months[mi]} 2026</h3>
+      ${monthSelector()}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px">
+      <div class="stat-card" style="background:#f0fdf4">
+        <div style="font-size:10px;color:#16a34a;font-weight:600">RECEBIDO ✓</div>
+        <div style="font-size:20px;font-weight:800;color:#16a34a">R$ ${fmt(totRec)}</div>
+      </div>
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:10px;color:#3b82f6;font-weight:600">TOTAL ESPERADO</div>
+        <div style="font-size:20px;font-weight:800;color:#1d4ed8">R$ ${fmt(totEst)}</div>
+      </div>
+      <div class="stat-card" style="background:${totAct>=totEst?'#f0fdf4':'#fef2f2'}">
+        <div style="font-size:10px;color:#64748b;font-weight:600">DIFERENÇA</div>
+        <div style="font-size:20px;font-weight:800;color:${totAct>=totEst?'#16a34a':'#dc2626'}">${totAct>=totEst?'+':''}R$ ${fmt(totAct-totEst)}</div>
+      </div>
+    </div>
+    ${!state.showIncomeForm?`
+      <button class="btn-dashed" onclick="toggleIncomeForm()">+ Adicionar Receita</button>
+    `:`
+      <div class="form-card">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">DESCRIÇÃO</label>
+            <input placeholder="Ex: Gabriella - Avoca" value="${state.newIncome.desc}" oninput="updateNewIncome('desc',this.value)"></div>
+          <div><label class="form-label">VALOR ESTIMADO (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newIncome.estimated}" oninput="updateNewIncome('estimated',this.value)"></div>
+          <div><label class="form-label">VALOR REAL (R$)</label>
+            <input type="number" placeholder="Opcional" value="${state.newIncome.actual}" oninput="updateNewIncome('actual',this.value)"></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addIncome()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleIncomeForm()">✕</button>
+          </div>
+        </div>
+      </div>
+    `}
+    ${inc.length>0?`
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-top:16px">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:center;width:40px">✓</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:right">Estimado</th>
+            <th style="padding:8px 10px;text-align:right">Valor Real</th>
+            <th style="padding:8px 10px;text-align:center;width:70px">No Resumo</th>
+            <th style="padding:8px 10px;text-align:center;width:30px"></th>
+          </tr></thead>
+          <tbody>
+            ${inc.map((r,i)=>{
+              const av = r.actual || r.estimated;
+              const diff = av - r.estimated;
+              const usedVal = r.received ? av : r.estimated;
+              return `
+                <tr style="background:${r.received?'#f0fdf4':i%2===0?'#fff':'#f8fafc'}">
+                  <td style="padding:7px 10px;text-align:center">
+                    <input type="checkbox" ${r.received?'checked':''} onchange="toggleIncomeReceived(${m},${i})" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+                  </td>
+                  <td style="padding:7px 10px;font-weight:600;color:${r.received?'#94a3b8':'#1e293b'};text-decoration:${r.received?'line-through':'none'}">${r.desc}</td>
+                  <td style="padding:7px 10px;text-align:right;color:#94a3b8;font-size:11px">R$ ${fmt(r.estimated)}</td>
+                  <td style="padding:7px 10px;text-align:right">
+                    <span class="edit-val" style="color:${diff!==0?'#1d4ed8':'#334155'}" onclick="editIncome(${m},${i},${av})">
+                      R$ ${fmt(av)}
+                      ${diff!==0?`<span style="font-size:9px;margin-left:4px;color:${diff>0?'#16a34a':'#dc2626'}">(${diff>0?'+':''}${fmt(diff)})</span>`:''}
+                    </span>
+                  </td>
+                  <td style="padding:7px 10px;text-align:center;font-size:11px;font-weight:600;color:${r.received?'#16a34a':'#64748b'}">
+                    R$ ${fmt(usedVal)} ${r.received?'<span class="real-tag">REAL</span>':'<span class="est-tag">EST</span>'}
+                  </td>
+                  <td style="padding:7px 10px;text-align:center">
+                    <button onclick="removeIncome(${m},${i})" style="border:none;background:none;cursor:pointer;font-size:14px">🗑</button>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+            <td></td><td style="padding:8px 10px">TOTAL</td>
+            <td style="padding:8px 10px;text-align:right">R$ ${fmt(totEst)}</td>
+            <td style="padding:8px 10px;text-align:right">R$ ${fmt(totAct)}</td>
+            <td style="padding:8px 10px;text-align:center">R$ ${fmt(inc.reduce((s,r)=>s+(r.received?(r.actual||r.estimated):r.estimated),0))}</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    `:`<div style="text-align:center;padding:32px;color:#94a3b8;font-size:12px">Nenhuma receita em ${months[mi]}. Clique em "+ Adicionar Receita".</div>`}
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>💡 Como funciona:</strong> Pendente = estimado no Resumo. Marcado ✓ Recebido = valor real no Resumo. Sem receitas = estimativa automática de salário.
+    </div>
+  `;
+}
+
+// ==================== VARIÁVEIS ====================
+function renderVariaveis() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const cats = getCategories();
+  const controllable = cats.filter(c=>getCatBudget(c,m)>0);
+  const legacy = cats.filter(c=>getCatBudget(c,m)<=0);
+  const baseList = getMonthBaseExp(m);
+  const instList = getInstallmentItems(m);
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="color:#1e293b;margin:0">📝 Variáveis — ${months[mi]} 2026</h3>
+      ${monthSelector()}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px">
+      <strong style="color:#1e293b;font-size:12px">Controláveis</strong>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:16px">
+      ${controllable.map(cat=>{
+        const budget = getCatBudget(cat,m);
+        const spent = catSpent(m, cat.id);
+        const remain = budget - spent;
+        const pct = Math.min((spent/budget)*100, 100);
+        const pctRaw = budget > 0 ? (spent / budget) * 100 : 0;
+        const pctLabel = `${Math.round(pctRaw)}%`;
+        const over = spent > budget;
+        const closed = !!state.varClosed[`${m}-${cat.id}`];
+        return `
+          <div class="budget-card ${over?'over':''}">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center">
+              <span style="font-weight:700;font-size:12px">${cat.name}</span>
+              <span style="display:flex;gap:6px;align-items:center">
+                <span style="font-size:11px;color:#64748b">R$ ${fmt(budget)}/mês</span>
+                <button onclick="editVarCap('${cat.id}',${m})" title="Editar cap" style="font-size:11px;line-height:1;padding:2px 5px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">✎</button>
+              </span>
+            </div>
+            <div style="background:#f1f5f9;border-radius:6px;height:10px;margin-bottom:6px;overflow:hidden">
+              <div style="background:${over?'#dc2626':pct>75?'#f59e0b':'#22c55e'};height:10px;border-radius:6px;width:${pct}%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px">
+              <span style="color:#64748b">Gasto: <strong style="color:#334155">R$ ${fmt(spent)}</strong></span>
+              <span style="color:${over?'#dc2626':'#16a34a'};font-weight:700">${over?`Estourou R$ ${fmt(-remain)}`:`Resta R$ ${fmt(remain)}`}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <span style="font-size:10px;font-weight:700;color:${over?'#dc2626':'#475569'}">${over?`💥 ${pctLabel}`:pctLabel}</span>
+              <button onclick="toggleVarClosed(${m},'${cat.id}')" title="${closed?'Concluído':'Marcar concluído'}" style="font-size:11px;line-height:1;padding:3px 6px;border-radius:6px;border:1px solid ${closed?'#16a34a':'#d1d5db'};background:${closed?'#dcfce7':'#fff'};color:${closed?'#166534':'#475569'};cursor:pointer">
+                ${closed?'✔':'✓'}
+              </button>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px">
+      <strong style="color:#64748b;font-size:12px">Passado (sem cap)</strong>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:16px">
+      ${legacy.map(cat=>{
+        const spent = catSpent(m, cat.id);
+        return `
+          <div class="budget-card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center">
+              <span style="font-weight:700;font-size:12px">${cat.name}</span>
+              <span style="display:flex;gap:6px;align-items:center">
+                <span style="font-size:11px;color:#94a3b8">Sem cap</span>
+              </span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px">
+              <span style="color:#64748b">Gasto: <strong style="color:#334155">R$ ${fmt(spent)}</strong></span>
+              <span style="color:#94a3b8;font-weight:700">—</span>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+    ${!state.showForm?`
+      <button class="btn-dashed" onclick="toggleForm()">+ Registrar Novo Gasto</button>
+    `:`
+      <div class="form-card">
+        <div class="form-grid">
+          <div><label class="form-label">CATEGORIA</label>
+            <select onchange="updateNewExp('cat',this.value)">
+              ${controllable.map(c=>`<option value="${c.id}" ${state.newExp.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+            </select></div>
+          <div><label class="form-label">DESCRIÇÃO</label>
+            <input placeholder="Ex: Supermercado" value="${state.newExp.desc}" oninput="updateNewExp('desc',this.value)"></div>
+          <div><label class="form-label">VALOR (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newExp.val}" oninput="updateNewExp('val',this.value)"></div>
+          <div><label class="form-label">PAGAMENTO</label>
+            <select onchange="updateNewExp('payment',this.value)">
+              <option value="dinheiro" ${state.newExp.payment==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+              <option value="cartao_nubank" ${state.newExp.payment==='cartao_nubank'?'selected':''}>💳 🟪</option>
+              <option value="cartao_bradesco" ${state.newExp.payment==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+            </select></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addExpense()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleForm()">✕</button>
+          </div>
+        </div>
+      </div>
+    `}
+    ${(baseList.length + instList.length)>0?`
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+        <table style="font-size:12px">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">Categoria</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:left">Método</th>
+            <th style="padding:8px 10px;text-align:right">Valor</th>
+            <th style="padding:8px 10px;text-align:center;width:40px"></th>
+          </tr></thead>
+          <tbody>
+            ${baseList.map((e,i)=>{
+              const cat = getCategoryById(e.cat);
+              return `<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+                <td style="padding:7px 10px;font-size:11px">
+                  <select onchange="updateExpCategory(${m},${i},this.value)" style="font-size:11px">
+                    ${cats.map(c=>`<option value="${c.id}" ${e.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+                  </select>
+                </td>
+                <td style="padding:7px 10px">${e.desc}</td>
+                <td style="padding:7px 10px">${getPaymentMethodLabel(e)}</td>
+                <td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td>
+                <td style="padding:7px 10px;text-align:center">
+                  <button onclick="removeExp(${m},${i})" style="border:none;background:none;cursor:pointer;font-size:14px">🗑</button>
+                </td></tr>`;
+            }).join('')}
+            ${instList.map((e,i)=>{
+              return `<tr style="background:${(baseList.length+i)%2===0?'#fff':'#f8fafc'}">
+                <td style="padding:7px 10px;font-size:11px">
+                  <select onchange="updateInstallmentCategory('${e.instId}',this.value)" style="font-size:11px">
+                    ${cats.map(c=>`<option value="${c.id}" ${e.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+                  </select>
+                </td>
+                <td style="padding:7px 10px">${e.desc}</td>
+                <td style="padding:7px 10px">${getPaymentMethodLabel(e)} 🔁</td>
+                <td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td>
+                <td style="padding:7px 10px;text-align:center">—</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="background:#f1f5f9;font-weight:700">
+            <td colspan="3" style="padding:8px 10px">Total em ${months[mi]}</td>
+            <td style="padding:8px 10px;text-align:right;color:#dc2626">R$ ${fmt(getMonthExp(m).reduce((s,e)=>s+e.val,0))}</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    `:`<div style="text-align:center;padding:32px;color:#94a3b8;font-size:12px">Nenhum gasto em ${months[mi]}. Estimativa: R$ ${fmt(getVarEstimate(m))}</div>`}
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>💡</strong> Gastos registrados substituem a estimativa de R$ ${fmt(getVarEstimate(m))} no Resumo.
+    </div>
+  `;
+}
+
+// ==================== PARCELAS ====================
+function renderParcelas() {
+  const allInst = [...instDetail, ...state.customInstallments];
+  return `
+    <h3 style="color:#1e293b;margin-bottom:12px">🔄 Parcelas Futuras</h3>
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;overflow-x:auto">
+      <table style="font-size:11px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 6px;text-align:left;white-space:nowrap">Compra</th>
+          <th style="padding:8px 6px;text-align:right">R$/mês</th>
+          ${months.map(m=>`<th style="padding:8px 6px;text-align:center">${m}</th>`).join('')}
+          <th style="padding:8px 6px;width:30px"></th>
+        </tr></thead>
+        <tbody>
+          ${allInst.map((item,idx)=>`
+            <tr style="background:${idx%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:6px;white-space:nowrap;font-size:10px">${item.name}</td>
+              <td style="padding:6px;text-align:right;font-weight:600">${fmt(item.pm)}</td>
+              ${monthNums.map(m=>`
+                <td style="padding:6px;text-align:center">
+                  ${item.rem.includes(m)?`<span style="background:#fee2e2;color:#dc2626;padding:2px 5px;border-radius:4px;font-size:9px;font-weight:600">${fmt(item.pm)}</span>`:`<span style="color:#d1d5db">—</span>`}
+                </td>`).join('')}
+              <td style="padding:6px;text-align:center">${!item.fixed?`<button onclick="removeInstallment(${idx - instDetail.length})" style="border:none;background:none;cursor:pointer;font-size:12px">🗑</button>`:''}</td>
+            </tr>`).join('')}
+        </tbody>
+        <tfoot><tr style="background:#fef2f2;font-weight:700;color:#dc2626">
+          <td style="padding:8px 6px">TOTAL</td><td></td>
+          ${monthNums.map(m=>{const t=allInst.reduce((s,i)=>s+(i.rem.includes(m)?i.pm:0),0); return `<td style="padding:8px 6px;text-align:center;font-size:10px">${t>0?'R$ '+fmt(t):'-'}</td>`;}).join('')}
+          <td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px"><strong>💡</strong> Parcelas são contabilizadas automaticamente no Resumo. Para adicionar novas, use aba 💳 Cartão.</div>
+  `;
+}
+
+// ==================== CARTÃO ====================
+function renderCartao() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const vc = getMonthExp(m).filter(e => e.payment === 'cartao' && !e.isInst);
+  const tvc = vc.reduce((s,e)=>s+e.val,0);
+  const pm = getInstallmentItems(m);
+  const tp = pm.reduce((s,i)=>s+i.val,0);
+  const total = tvc + tp;
+  const totalNubank = getMonthCardTotal(m, 'nubank');
+  const totalBradesco = getMonthCardTotal(m, 'bradesco');
+  const paidNubank = isCardPaid(m, 'nubank');
+  const paidBradesco = isCardPaid(m, 'bradesco');
+  const vcNubank = vc.filter(e => (e.card || 'bradesco') === 'nubank');
+  const vcBradesco = vc.filter(e => (e.card || 'bradesco') === 'bradesco');
+  const pmNubank = pm.filter(e => (e.card || 'bradesco') === 'nubank');
+  const pmBradesco = pm.filter(e => (e.card || 'bradesco') === 'bradesco');
+  
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h3 style="color:#1e293b;margin:0">💳 Cartão — ${months[mi]} 2026</h3>
+      ${monthSelector()}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
+      <div class="stat-card" style="background:#fee2e2">
+        <div style="font-size:10px;color:#dc2626;font-weight:600">TOTAL FATURA</div>
+        <div style="font-size:22px;font-weight:800;color:#dc2626">R$ ${fmt(total)}</div>
+      </div>
+      <div class="stat-card" style="background:#fef3c7">
+        <div style="font-size:10px;color:#d97706;font-weight:600">VARIÁVEIS</div>
+        <div style="font-size:18px;font-weight:700;color:#d97706">R$ ${fmt(tvc)}</div>
+      </div>
+      <div class="stat-card" style="background:#ffe4e6">
+        <div style="font-size:10px;color:#e11d48;font-weight:600">PARCELAS</div>
+        <div style="font-size:18px;font-weight:700;color:#e11d48">R$ ${fmt(tp)}</div>
+      </div>
+      <div class="stat-card" style="background:${paidNubank?'#dcfce7':'#f8fafc'}">
+        <div style="font-size:10px;color:${paidNubank?'#166534':'#64748b'};font-weight:600">🟪 • Venc. dia ${getCardDueDay('nubank')}</div>
+        <div style="margin:4px 0;font-size:10px;color:#64748b">Dia <input type="number" min="1" max="31" value="${getCardDueDay('nubank')}" onchange="updateCardDueDay('nubank',this.value)" style="width:52px;font-size:10px;padding:2px 4px;border:1px solid #cbd5e1;border-radius:4px"></div>
+        <label style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:#334155;cursor:pointer">
+          <input type="checkbox" ${paidNubank?'checked':''} onchange="toggleCardPaid(${m},'nubank')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+          <span>${paidNubank?'Paga':'Pendente'} • R$ ${fmt(totalNubank)}</span>
+        </label>
+      </div>
+      <div class="stat-card" style="background:${paidBradesco?'#dcfce7':'#f8fafc'}">
+        <div style="font-size:10px;color:${paidBradesco?'#166534':'#64748b'};font-weight:600">🟥 • Venc. dia ${getCardDueDay('bradesco')}</div>
+        <div style="margin:4px 0;font-size:10px;color:#64748b">Dia <input type="number" min="1" max="31" value="${getCardDueDay('bradesco')}" onchange="updateCardDueDay('bradesco',this.value)" style="width:52px;font-size:10px;padding:2px 4px;border:1px solid #cbd5e1;border-radius:4px"></div>
+        <label style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:#334155;cursor:pointer">
+          <input type="checkbox" ${paidBradesco?'checked':''} onchange="toggleCardPaid(${m},'bradesco')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+          <span>${paidBradesco?'Paga':'Pendente'} • R$ ${fmt(totalBradesco)}</span>
+        </label>
+      </div>
+    </div>
+    ${!state.showInstForm?`
+      <button class="btn-dashed" onclick="toggleInstForm()">+ Adicionar Compra Parcelada</button>
+    `:`
+      <div class="form-card">
+        <div style="display:grid;grid-template-columns:2fr 1fr 2fr 2fr 1.5fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">NOME DA COMPRA</label>
+            <input placeholder="Ex: Notebook Dell (12x)" value="${state.newInst.name}" oninput="updateNewInst('name',this.value)"></div>
+          <div><label class="form-label">VALOR/MÊS (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newInst.pm}" oninput="updateNewInst('pm',this.value)"></div>
+          <div><label class="form-label">MESES (vírgula)</label>
+            <input placeholder="Ex: 3,4,5,6" value="${state.newInst.months}" oninput="updateNewInst('months',this.value)"></div>
+          <div><label class="form-label">CATEGORIA</label>
+            <select onchange="updateNewInst('cat',this.value)">
+              ${getCategories().map(c=>`<option value="${c.id}" ${state.newInst.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+            </select></div>
+          <div><label class="form-label">CARTÃO</label>
+            <select onchange="updateNewInst('card',this.value)">
+              ${cards.map(c=>`<option value="${c.id}" ${state.newInst.card===c.id?'selected':''}>${c.icon}</option>`).join('')}
+            </select></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addInstallment()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleInstForm()">✕</button>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:#64748b">2=Fev 3=Mar 4=Abr 5=Mai 6=Jun 7=Jul 8=Ago 9=Set 10=Out 11=Nov 12=Dez</div>
+      </div>
+    `}
+    ${(vc.length>0 || pm.length>0)?`
+      <h4 style="color:#1e293b;margin:16px 0 8px">🟪</h4>
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">Tipo</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:right">Valor</th>
+          </tr></thead>
+          <tbody>
+            ${vcNubank.map((e,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Variável</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+            ${pmNubank.map((e,i)=>`<tr style="background:${(vcNubank.length+i)%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Parcela</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+          </tbody>
+          <tfoot><tr style="background:#fef3c7;font-weight:700"><td colspan="2" style="padding:8px 10px">Subtotal</td><td style="padding:8px 10px;text-align:right;color:#d97706">R$ ${fmt(totalNubank)}</td></tr></tfoot>
+        </table>
+      </div>
+
+      <h4 style="color:#1e293b;margin:16px 0 8px">🟥</h4>
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">Tipo</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:right">Valor</th>
+          </tr></thead>
+          <tbody>
+            ${vcBradesco.map((e,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Variável</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+            ${pmBradesco.map((e,i)=>`<tr style="background:${(vcBradesco.length+i)%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Parcela</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+          </tbody>
+          <tfoot><tr style="background:#ffe4e6;font-weight:700"><td colspan="2" style="padding:8px 10px">Subtotal</td><td style="padding:8px 10px;text-align:right;color:#e11d48">R$ ${fmt(totalBradesco)}</td></tr></tfoot>
+        </table>
+      </div>
+    `:''}
+    <div class="alert alert-warning" style="margin-top:12px"><strong>💳 Fatura total:</strong> R$ ${fmt(total)}</div>
+  `;
+}
+
+// ==================== CONSÓRCIOS ====================
+function renderConsorcios() {
+  return `
+    <h3 style="color:#1e293b;margin-bottom:12px">🏦 Consórcios</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe">
+        <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px">Mensal</div>
+        <div style="font-size:11px;color:#334155;line-height:1.6">R$ 405 em fev, +R$ 5/mês, 12x<br><strong style="color:#16a34a">Recebe outubro: R$ 5.340</strong></div>
+      </div>
+      <div style="background:#fdf4ff;border-radius:10px;padding:14px;border:1px solid #e9d5ff">
+        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:8px">Semanal</div>
+        <div style="font-size:11px;color:#334155;line-height:1.6">R$ 150/sem +R$ 1,50/sem, até 10/ago<br><strong style="color:#16a34a">Recebe fevereiro: R$ 5.900</strong></div>
+      </div>
+    </div>
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:left">Mês</th>
+          <th style="padding:8px 10px;text-align:right">Mensal</th>
+          <th style="padding:8px 10px;text-align:center">Pago</th>
+          <th style="padding:8px 10px;text-align:right">Semanal (prev.)</th>
+          <th style="padding:8px 10px;text-align:right">Semanal (pago)</th>
+          <th style="padding:8px 10px;text-align:right">Total</th>
+          <th style="padding:8px 10px;text-align:right">Recebimentos</th>
+        </tr></thead>
+        <tbody>
+          ${monthNums.map((m,i)=>{
+            const cm=consM[m]||0, cs=consS[m]||0, rv=m===2?5900:m===10?5340:0;
+            const csPaid=consWeeklySchedule.filter(w=>w.month===m && isWeeklyConsPaid(w.id)).reduce((s,w)=>s+w.amount,0);
+            return `<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px;font-weight:600">${months[i]}</td>
+              <td style="padding:7px 10px;text-align:right;color:#ea580c">${fmt(cm)}</td>
+              <td style="padding:7px 10px;text-align:center">${cm>0?`<input type="checkbox" ${isConsPaid(m,'m')?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e">`:'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${cs>0?'#7c3aed':'#cbd5e1'}">${cs>0?fmt(cs):'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${csPaid>0?'#16a34a':'#cbd5e1'}">${csPaid>0?fmt(csPaid):'-'}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:700">${fmt(cm+cs)}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:${rv>0?700:400};color:${rv>0?'#16a34a':'#cbd5e1'}">${rv>0?`+R$ ${fmt(rv)}`:'-'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+          <td style="padding:8px 10px">TOTAL</td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consM).reduce((s,v)=>s+v,0))}</td>
+          <td></td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consS).reduce((s,v)=>s+v,0))}</td>
+          <td></td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consM).reduce((s,v)=>s+v,0)+Object.values(consS).reduce((s,v)=>s+v,0))}</td>
+          <td style="padding:8px 10px;text-align:right;color:#4ade80">+R$ ${fmt(11240)}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div style="margin-top:12px;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:left">Parcela Semanal</th>
+          <th style="padding:8px 10px;text-align:right">Valor</th>
+          <th style="padding:8px 10px;text-align:center">Pago</th>
+        </tr></thead>
+        <tbody>
+          ${consWeeklySchedule.map((w,i)=>`
+            <tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px">${w.label}</td>
+              <td style="padding:7px 10px;text-align:right">${fmt(w.amount)}</td>
+              <td style="padding:7px 10px;text-align:center"><input type="checkbox" ${isWeeklyConsPaid(w.id)?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px"><strong>💡</strong> Só parcelas marcadas como pagas entram no Saldo em Conta (Real).</div>
+  `;
+}
+
+function exportData() {
+  const payload = {
+    expenses: state.expenses, fixedPaid: state.fixedPaid,
+    fixedActual: state.fixedActual, customInstallments: state.customInstallments,
+    catOverrides: state.catOverrides,
+    instCatOverrides: state.instCatOverrides,
+    customFixed: state.customFixed,
+    varClosed: state.varClosed,
+    cardPaid: state.cardPaid,
+    consPaid: state.consPaid,
+    consWeeklyPaid: state.consWeeklyPaid,
+    cardDueDay: state.cardDueDay,
+    incomes: state.incomes, exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `budget-2026-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.expenses || d.fixedPaid || d.incomes) {
+        applyPayload(d);
+        saveData();
+        render();
+        alert('✅ Dados importados com sucesso!');
+      } else {
+        alert('❌ Arquivo inválido');
+      }
+    } catch(err) { alert('❌ Erro ao ler arquivo: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+loadData().then(() => render());
+</script>
+</body>
+</html>
