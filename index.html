@@ -1,0 +1,2817 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💰 Sucesso Financeiro 2026</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; }
+.container { max-width: 1150px; margin: 0 auto; padding: 16px; font-size: 13px; }
+h2 { text-align: center; margin-bottom: 2px; color: #1e293b; }
+.subtitle { text-align: center; color: #64748b; margin-bottom: 4px; font-size: 12px; }
+.status { text-align: center; font-size: 10px; margin-bottom: 12px; }
+.status.saving { color: #3b82f6; }
+.status.saved { color: #16a34a; }
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.tab-btn.active { background: #3b82f6; color: #fff; }
+.tab-btn:not(.active) { background: #e2e8f0; color: #475569; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.stat-card { border-radius: 10px; padding: 10px 12px; text-align: center; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 7px 4px; text-align: right; white-space: nowrap; font-weight: 600; font-size: 9.5px; background: #1e293b; color: #fff; }
+td { padding: 6px 4px; }
+.month-sel { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.month-sel::-webkit-scrollbar { display: none; }
+.month-btn { padding: 5px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; white-space: nowrap; flex: 0 0 auto; }
+.month-btn.active { background: #3b82f6; color: #fff; }
+.month-btn:not(.active) { background: #e2e8f0; color: #475569; }
+.progress-bar { background: #e2e8f0; border-radius: 8px; height: 12px; margin-bottom: 16px; overflow: hidden; }
+.progress-fill { background: #22c55e; height: 12px; border-radius: 8px; transition: width 0.3s; }
+.budget-card { background: #fff; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0; }
+.budget-card.over { border-color: #fca5a5; }
+.form-card { background: #f8fafc; border-radius: 10px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 8px; align-items: end; }
+.form-label { font-size: 10px; font-weight: 600; color: #64748b; display: block; margin-bottom: 4px; }
+input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+.btn-add { background: #22c55e; color: #fff; }
+.btn-cancel { background: #e2e8f0; color: #64748b; padding: 8px 12px; }
+.btn-dashed { width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: #f8fafc; cursor: pointer; font-size: 13px; font-weight: 600; color: #3b82f6; margin-bottom: 16px; }
+.alert { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 11px; }
+.alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.real-tag { font-size:8px;padding:1px 4px;border-radius:3px;background:#dbeafe;color:#1d4ed8;margin-left:3px;vertical-align:middle; }
+.est-tag { font-size:8px;padding:1px 4px;border-radius:3px;background:#f1f5f9;color:#94a3b8;margin-left:3px;vertical-align:middle; }
+.edit-val { font-weight:700;cursor:pointer;border-bottom:1px dashed #94a3b8;padding-bottom:1px; }
+.edit-val:hover { color:#3b82f6 !important; }
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  table { font-size: 10px; }
+  th, td { padding: 4px 2px; }
+}
+</style>
+</head>
+<body>
+<div class="container" id="app"><div style="text-align:center;padding:40px;color:#64748b">Carregando...</div></div>
+
+<script>
+const FX=5.55,GAB=13600,GABI=1120*FX;
+const gc={1:2,2:2,3:2,4:2,5:3,6:2,7:2,8:2,9:2,10:3,11:2,12:2};
+
+// === FIXAS: só contas fixas puras (sem duplicar variáveis) ===
+const fixedBase=[
+  {id:"aluguel",name:"Aluguel",val:3000,cat:"casa"},
+  {id:"escola",name:"Escola",val:1100,cat:"educacao"},
+  {id:"ipva_carro",name:"IPVA Carro",valByMonth:{2:930,3:930,4:930},cat:"impostos"},
+  {id:"ipva_moto",name:"IPVA Moto",valByMonth:{2:400},cat:"impostos"},
+  {id:"ir",name:"Imposto de Renda",valByMonth:{2:500,3:500,4:500,5:500,6:500,7:500,8:500,9:500,10:500,11:500,12:500},cat:"impostos"},
+  {id:"contador",name:"Contador",val:220,cat:"impostos"},
+  {id:"agua",name:"Água",val:200,cat:"utilidades"},
+  {id:"energia",name:"Energia",val:200,cat:"utilidades"},
+  {id:"academia",name:"Academia",val:200,payment:"cartao",card:"bradesco",cat:"atividades"},
+  {id:"internet",name:"Internet",val:125,payment:"dinheiro",cat:"internet"},
+  {id:"celular_gabi",name:"Celular Gabriella",val:49,payment:"dinheiro",cat:"internet"},
+  {id:"celular_gabriel",name:"Celular Gabriel",val:65,payment:"cartao",card:"bradesco",cat:"internet"},
+];
+const fixedCats = [
+  {id:'casa', name:'🏠 Casa'},
+  {id:'educacao', name:'📚 Educação'},
+  {id:'impostos', name:'🧾 Impostos'},
+  {id:'atividades', name:'🏃 Atividades'},
+  {id:'internet', name:'📶 Internet'},
+  {id:'utilidades', name:'💡 Utilidades'}
+];
+const tFixed=0; // base dinâmico por mês
+
+// === VARIÁVEIS: categorias com orçamento mensal ===
+const budgetCats=[
+  {id:"alimentacao",name:"🍽️ Alimentação",budget:3000,weekly:true},
+  {id:"limpeza",name:"🧹 Limpeza",budget:1000,weekly:true},
+  {id:"conforto",name:"🛋️ Conforto",budget:300},
+  {id:"conforto_2025",name:"🛋️ Conforto 2026",budget:0},
+  {id:"viagem_eua",name:"✈️ Viagem EUA",budget:0},
+  {id:"cartao_emprestado",name:"💳 Cartão Emprestado",budget:0},
+  {id:"casamento",name:"💍 Casamento",budget:0},
+  {id:"gasolina_v",name:"⛽ Gasolina",budget:700},
+  {id:"formula_v",name:"🍼 Fórmula/Fraldas",budget:300},
+  {id:"educacao",name:"🎓 Atividades",budget:400},
+  {id:"eventos",name:"🎉 Eventos",budget:1200},
+  {id:"extras",name:"✨ Extras",budget:300},
+];
+const totalBase = tFixed + 0; // placeholder (estimativa é dinâmica)
+
+const consM={1:400,2:405,3:410,4:415,5:420,6:425,7:430,8:435,9:440,10:445,11:450,12:455};
+function buildWeeklyConsSchedule() {
+  const out = [];
+  let d = new Date(Date.UTC(2026, 0, 5)); // 05/01/2026
+  const end = new Date(Date.UTC(2026, 7, 10)); // 10/08/2026
+  let idx = 0;
+  while (d <= end) {
+    const amount = 160.5 + (idx * 1.5);
+    const month = d.getUTCMonth() + 1;
+    const id = d.toISOString().slice(0,10);
+    const dd = String(d.getUTCDate()).padStart(2,'0');
+    const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    const yyyy = d.getUTCFullYear();
+    out.push({id, month, amount, label:`${dd}/${mm}/${yyyy}`});
+    d.setUTCDate(d.getUTCDate() + 7);
+    idx++;
+  }
+  return out;
+}
+const consWeeklySchedule = buildWeeklyConsSchedule();
+const consS = consWeeklySchedule.reduce((acc,w)=>{
+  acc[w.month] = (acc[w.month] || 0) + w.amount;
+  return acc;
+}, {});
+const extraIncome={2:10100,3:15500,10:5340};
+const months=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const monthNums=[1,2,3,4,5,6,7,8,9,10,11,12];
+function getPrevMonthNum(mm) {
+  return mm > 1 ? (mm - 1) : 1;
+}
+const cards = [
+  {id:"nubank", icon:"🟪"},
+  {id:"bradesco", icon:"🟥"}
+];
+const fmt=v=>v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+function getCurrentMonthNum() {
+  return new Date().getMonth() + 1;
+}
+
+const instDetail=[
+  {id:"viagem_bradesco",name:"Viagem EUA - Bradesco",pm:2451.63,rem:[2],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"viagem_nubank",name:"Viagem EUA - Nubank",pm:19092.73,rem:[3],fixed:true,cat:"viagem_eua",card:"nubank"},
+  {id:"casas_bahia",name:"Casas Bahia (10x)",pm:339.05,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"amazon_frigela",name:"Amazon Frigela (10x)",pm:261.80,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"amazon_webcont",name:"Amazon Webcont (10x)",pm:238.90,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"magalu",name:"Magalu (10x)",pm:200.77,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"mlp_magalu",name:"MLP Magalu (10x)",pm:161.75,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"american_airlines",name:"American Airlines (6x)",pm:1682.14,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"mentoria_pratica",name:"Mentoria Prática (4x)",pm:222.72,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
+  {id:"leonardo_faria",name:"Leonardo de Faria (5x)",pm:1010.00,rem:[2,3,4,5],fixed:true,cat:"viagem_eua",card:"bradesco"},
+  {id:"shopee_dulcecortina",name:"Shopee DulceCortina (10x)",pm:179.86,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
+  {id:"pro_seculo",name:"PRO Seculo (2x)",pm:375.00,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
+  {id:"azulvia",name:"Azulvia (4x)",pm:634.25,rem:[2,3,4],fixed:true,cat:"cartao_emprestado",card:"bradesco"},
+  {id:"rentcars",name:"Rentcars (3x)",pm:694.13,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
+];
+
+let state = {
+  tab: "resumo", trackMonth: getCurrentMonthNum(),
+  analyticsTab: "mensal",
+  cardSubTab: "nubank",
+  varEntryTab: "single",
+  expenses: {}, fixedPaid: {}, fixedActual: {},
+  customFixed: [],
+  showFixedForm: false,
+  newFixed: {name:"", val:"", day:"", payment:"dinheiro", cat:"casa"},
+  fixedModal: null,
+  fixedOverrides: {},
+  showForm: false,
+  newExp: {cat: "alimentacao", desc: "", val: "", payment: "dinheiro", day: ""},
+  varCatModal: null,
+  openCatDetails: {},
+  varClosed: {},
+  cardPaid: {},
+  consPaid: {},
+  consWeeklyPaid: {},
+  cardDueDay: {nubank: 10, bradesco: 20},
+  customInstallments: [],
+  newInst: {name: "", total: "", qty: "", cat: "alimentacao", payment: "cartao_bradesco", day: ""},
+  expenseModal: null,
+  catOverrides: {},
+  customVarCats: [],
+  newVarCat: {name:"", budget:"", desc:""},
+  fixedCatOverrides: {},
+  analyticsParentOverrides: {},
+  analyticsDetails: {},
+  analyticsEntriesModal: null,
+  instCatOverrides: {},
+  instOverrides: {},
+  incomes: {}, showIncomeForm: false,
+  newIncome: {desc: "", val: "", day: ""},
+  activityHistory: []
+};
+
+let storageOk = false;
+let cloudOk = false;
+const STORAGE_KEY = 'budget-2026-v3';
+const SUPABASE_URL = 'https://sgekfcrkfgqlyvjhshgn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_9BvhSBtOri9h8U9SNEYenQ_swFrZ1za';
+const SUPABASE_TABLE = 'app_state';
+const SUPABASE_ROW_ID = STORAGE_KEY;
+
+async function testStorage() {
+  if (!window.localStorage || typeof window.localStorage.setItem !== 'function') return false;
+  try {
+    window.localStorage.setItem('budget-test', 'ok');
+    window.localStorage.removeItem('budget-test');
+    return true;
+  } catch(e) { return false; }
+}
+
+function applyPayload(d) {
+  if (monthNums.includes(parseInt(d.trackMonth, 10))) {
+    state.trackMonth = parseInt(d.trackMonth, 10);
+  }
+  state.analyticsTab = d.analyticsTab || state.analyticsTab || "mensal";
+  state.cardSubTab = d.cardSubTab || state.cardSubTab || "nubank";
+  state.varEntryTab = d.varEntryTab || state.varEntryTab || "single";
+  state.expenses = d.expenses || {};
+  state.fixedPaid = d.fixedPaid || {};
+  state.fixedActual = d.fixedActual || {};
+  state.fixedOverrides = d.fixedOverrides || {};
+  state.fixedOverrides = Object.fromEntries(
+    Object.entries(state.fixedOverrides).map(([k, v]) => [k, {
+      ...v,
+      cat: v?.cat === 'conectividade' ? 'internet' : (v?.cat || v?.category || undefined)
+    }])
+  );
+  state.customInstallments = d.customInstallments || [];
+  state.catOverrides = d.catOverrides || {};
+  state.customVarCats = d.customVarCats || [];
+  state.newVarCat = d.newVarCat || state.newVarCat || {name:"", budget:"", desc:""};
+  state.fixedCatOverrides = d.fixedCatOverrides || {};
+  state.analyticsParentOverrides = d.analyticsParentOverrides || {};
+  state.analyticsDetails = d.analyticsDetails || {};
+  state.instCatOverrides = d.instCatOverrides || {};
+  state.instOverrides = d.instOverrides || {};
+  state.customFixed = d.customFixed || [];
+  state.customFixed = (state.customFixed || []).map(f => ({
+    ...f,
+    day: Number.isInteger(f.day) ? f.day : 1,
+    cat: f.cat === 'conectividade' ? 'internet' : (f.cat || "casa"),
+    payment: f.payment || "dinheiro",
+    card: f.payment === "cartao" ? (f.card || "bradesco") : null
+  }));
+  state.varClosed = d.varClosed || {};
+  state.cardPaid = d.cardPaid || {};
+  state.consPaid = d.consPaid || {};
+  state.consWeeklyPaid = d.consWeeklyPaid || {};
+  state.cardDueDay = d.cardDueDay || {nubank: 10, bradesco: 20};
+  // Migração: modelo antigo era boolean por mês; agora é por mês+cartão.
+  for (const mm of monthNums) {
+    if (state.cardPaid[mm] === true) {
+      state.cardPaid[`${mm}-nubank`] = true;
+      state.cardPaid[`${mm}-bradesco`] = true;
+      delete state.cardPaid[mm];
+    }
+  }
+  if (state.newExp && !state.newExp.payment) state.newExp.payment = "dinheiro";
+  if (state.newInst && !state.newInst.payment) state.newInst.payment = "cartao_bradesco";
+  if (state.newFixed && !state.newFixed.payment) state.newFixed.payment = "dinheiro";
+  if (state.newFixed && !state.newFixed.cat) state.newFixed.cat = "casa";
+  if (state.newFixed && state.newFixed.day == null) state.newFixed.day = "";
+  if (state.newIncome && state.newIncome.val == null) state.newIncome.val = state.newIncome.estimated || "";
+  if (state.newIncome && state.newIncome.day == null) state.newIncome.day = "";
+  for (const mm of monthNums) {
+    state.expenses[mm] = (state.expenses[mm] || []).map(e => {
+      const payment = e.payment || "dinheiro";
+      const card = payment === 'cartao' ? (e.card || inferCardFromText(e.desc)) : null;
+      return {
+        ...e,
+        payment,
+        card,
+        day: Number.isInteger(e.day) ? e.day : 1
+      };
+    });
+  }
+  state.customInstallments = (state.customInstallments || []).map(ci => ({
+    ...ci,
+    payment: ci.payment || 'cartao',
+    card: ci.card || inferCardFromText(ci.name),
+    day: Number.isInteger(ci.day) ? ci.day : 1
+  }));
+  state.incomes = d.incomes || {};
+  state.activityHistory = Array.isArray(d.activityHistory) ? d.activityHistory : [];
+}
+
+async function supabaseSelect() {
+  const url = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+  if (!res.ok) throw new Error(`Supabase read failed: ${res.status}`);
+  const rows = await res.json();
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0]?.payload || null;
+}
+
+async function supabaseUpsert(payload) {
+  const url = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
+  const body = [{
+    id: SUPABASE_ROW_ID,
+    payload,
+    updated_at: new Date().toISOString()
+  }];
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`Supabase write failed: ${res.status}`);
+}
+
+async function loadData() {
+  // 1. Testar se localStorage funciona
+  storageOk = await testStorage();
+
+  // 2. Tentar carregar da nuvem primeiro
+  try {
+    const cloudPayload = await supabaseSelect();
+    cloudOk = true;
+    if (cloudPayload) {
+      applyPayload(cloudPayload);
+      if (storageOk) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudPayload));
+      return;
+    }
+  } catch(e) {
+    cloudOk = false;
+  }
+
+  // 3. Fallback local
+  if (storageOk) {
+    try {
+      const r = window.localStorage.getItem(STORAGE_KEY);
+      if (r) {
+        applyPayload(JSON.parse(r));
+      }
+    } catch(e) { /* Key doesn't exist yet, that's fine */ }
+  }
+}
+
+async function saveData() {
+  const payload = {
+    trackMonth: state.trackMonth,
+    analyticsTab: state.analyticsTab,
+    cardSubTab: state.cardSubTab,
+    varEntryTab: state.varEntryTab,
+    expenses: state.expenses, fixedPaid: state.fixedPaid,
+    fixedActual: state.fixedActual, fixedOverrides: state.fixedOverrides, customInstallments: state.customInstallments,
+    catOverrides: state.catOverrides,
+    customVarCats: state.customVarCats,
+    fixedCatOverrides: state.fixedCatOverrides,
+    analyticsParentOverrides: state.analyticsParentOverrides,
+    analyticsDetails: state.analyticsDetails,
+    instCatOverrides: state.instCatOverrides,
+    instOverrides: state.instOverrides,
+    customFixed: state.customFixed,
+    varClosed: state.varClosed,
+    cardPaid: state.cardPaid,
+    consPaid: state.consPaid,
+    consWeeklyPaid: state.consWeeklyPaid,
+    cardDueDay: state.cardDueDay,
+    incomes: state.incomes,
+    activityHistory: state.activityHistory
+  };
+
+  let localSaved = false;
+  if (storageOk) {
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); localSaved = true; } catch(e) {}
+  }
+
+  let cloudSaved = false;
+  try {
+    await supabaseUpsert(payload);
+    cloudSaved = true;
+    cloudOk = true;
+  } catch(e) {
+    cloudOk = false;
+  }
+
+  showSaveStatus(localSaved, cloudSaved);
+}
+
+function showSaveStatus(localSaved, cloudSaved) {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  if (cloudSaved) {
+    el.innerHTML = '✅ Salvo na nuvem';
+    el.style.color = '#16a34a';
+  } else if (localSaved) {
+    el.innerHTML = '✅ Salvo local (offline)';
+    el.style.color = '#0284c7';
+  } else {
+    el.innerHTML = '⚠️ Falha ao salvar. Use Exportar Backup';
+    el.style.color = '#d97706';
+  }
+}
+
+function gk(m,id) { return `${m}-${id}`; }
+function getCategories() {
+  const base = [...budgetCats, ...(state.customVarCats || [])];
+  return base.map(c => ({...c, ...(state.catOverrides?.[c.id] || {})}));
+}
+function getFixedCategories() {
+  return fixedCats.map(c => ({...c, ...(state.fixedCatOverrides?.[c.id] || {})}));
+}
+function getCategoryById(id) {
+  return getCategories().find(c => c.id === id);
+}
+function getPaymentMethodLabel(e) {
+  if (e.payment === 'cartao') return `💳 ${getCardLabel(e.card || 'bradesco')}`;
+  return '💵';
+}
+function getFixedBaseValue(m, f) {
+  if (f.valByMonth) return f.valByMonth[m] ?? 0;
+  return f.val ?? 0;
+}
+function getFixedBaseTotal(m) {
+  return getAllFixed().reduce((s,f)=>s+getFixedBaseValue(m,f),0);
+}
+function inferCardFromText(text) {
+  const t = String(text || '').toLowerCase();
+  if (t.includes('bradesco')) return 'bradesco';
+  if (t.includes('nubank')) return 'nubank';
+  return 'bradesco';
+}
+function getCardLabel(cardId) {
+  const c = cards.find(c => c.id === cardId);
+  return c ? c.icon : '🟥';
+}
+function getCardDueDay(cardId) {
+  const d = parseInt(state.cardDueDay?.[cardId], 10);
+  return isNaN(d) ? 10 : d;
+}
+function updateCardDueDay(cardId, val) {
+  const day = parseInt(val, 10);
+  if (isNaN(day) || day < 1 || day > 31) return;
+  state.cardDueDay[cardId] = day;
+  saveData();
+  render();
+}
+function isConsPaid(m, type) { return !!state.consPaid[`${m}-${type}`]; }
+function toggleConsPaid(m, type) {
+  const k = `${m}-${type}`;
+  state.consPaid[k] = !state.consPaid[k];
+  const status = state.consPaid[k] ? 'Marcado como pago' : 'Desmarcado';
+  const label = type === 'm' ? 'Consórcio Mensal' : 'Consórcio';
+  addActivityLog(`${state.consPaid[k] ? '✅' : '↩️'} ${label} ${fullMonthName(m)} ${status}`, m);
+  saveData();
+  render();
+}
+function isWeeklyConsPaid(id) { return !!state.consWeeklyPaid[id]; }
+function toggleWeeklyConsPaid(id) {
+  state.consWeeklyPaid[id] = !state.consWeeklyPaid[id];
+  const item = consWeeklySchedule.find(w => w.id === id);
+  if (item) {
+    const status = state.consWeeklyPaid[id] ? 'Marcado como pago' : 'Desmarcado';
+    addActivityLog(`${state.consWeeklyPaid[id] ? '✅' : '↩️'} ${item.label} R$ ${fmt(item.amount)} ${status}`, item.month);
+  }
+  saveData();
+  render();
+}
+function getConfirmedConsSpend(m) {
+  const cm = consM[m] || 0;
+  const weekly = consWeeklySchedule
+    .filter(w => w.month === m && isWeeklyConsPaid(w.id))
+    .reduce((s,w)=>s+w.amount,0);
+  return (isConsPaid(m, 'm') ? cm : 0) + weekly;
+}
+function getCatBudget(cat, m) {
+  return cat.budget || 0;
+}
+function getVarEstimate(m) {
+  return getCategories().reduce((s,c)=>s+(getCatBudget(c,m)>0?getCatBudget(c,m):0),0);
+}
+function isPaid(m,id) { return !!state.fixedPaid[gk(m,id)]; }
+function getActual(m,id,def) { return state.fixedActual[gk(m,id)] ?? def; }
+function normalizeInstMonths(ms) {
+  const clean = ms.map(n=>parseInt(n)).filter(n=>!isNaN(n));
+  const uniq = [...new Set(clean)].sort((a,b)=>a-b);
+  if (uniq.includes(2) && !uniq.includes(1)) uniq.unshift(1);
+  return uniq;
+}
+function getAllInstallmentsResolved() {
+  const allInst = [...instDetail, ...state.customInstallments];
+  return allInst
+    .map(inst => {
+      if (inst.fixed && state.instOverrides?.[inst.id]) return {...inst, ...state.instOverrides[inst.id]};
+      return inst;
+    });
+}
+function mapInstallmentItem(inst, m, idx, monthsForDesc, suffixPrevJan) {
+  const monthLabel = months[monthNums.indexOf(m)] || '';
+  const total = parseInt(inst.total, 10) || monthsForDesc.length || 0;
+  const part = total && idx >= 0
+    ? ` ${monthLabel} (${idx+1}/${total})${suffixPrevJan ? ' parcela anterior' : ''}`
+    : (monthLabel ? ` ${monthLabel}` : '');
+  const baseCat = state.instCatOverrides?.[inst.id] || inst.cat || "eventos";
+  return {
+    cat: baseCat,
+    desc: `${inst.name}${part}`,
+    val: inst.pm,
+    payment: inst.payment || "cartao",
+    createdAt: Number.isFinite(Number(inst.createdAt))
+      ? Number(inst.createdAt)
+      : (typeof inst.id === 'number' ? inst.id : 0),
+    card: inst.card || inferCardFromText(inst.name),
+    day: Number.isInteger(inst.day) ? inst.day : 1,
+    isInst: true,
+    fixed: !!inst.fixed,
+    instId: inst.id,
+    instName: inst.name,
+    instPos: idx >= 0 ? idx+1 : null,
+    instTotal: total,
+    startMonth: inst.startMonth || monthsForDesc[0] || m
+  };
+}
+function getInstallmentItems(m) {
+  return getAllInstallmentsResolved()
+    .filter(inst => normalizeInstMonths(inst.rem || []).includes(m))
+    .map(inst => {
+      const remMonths = normalizeInstMonths(inst.rem || []);
+      const idx = remMonths.indexOf(m);
+      const originalRem = [...new Set((inst.rem || []).map(n=>parseInt(n)).filter(n=>!isNaN(n)))].sort((a,b)=>a-b);
+      const isSyntheticJanPrev = m === 1 && originalRem.includes(2) && !originalRem.includes(1);
+      return mapInstallmentItem(inst, m, idx, remMonths, isSyntheticJanPrev);
+    });
+}
+function getMonthBaseExp(m) { return state.expenses[m] || []; }
+function getMonthExp(m) {
+  const base = getMonthBaseExp(m);
+  const inst = getInstallmentItems(m);
+  return [...base, ...inst];
+}
+function catSpent(m,catId) { return getMonthExp(m).filter(e=>e.cat===catId).reduce((s,e)=>s+e.val,0); }
+function getMonthIncomes(m) { return state.incomes[m] || []; }
+function getIncomeValue(inc) {
+  return inc?.value ?? inc?.actual ?? inc?.estimated ?? 0;
+}
+function getMonthCardTotal(m, cardId) {
+  const expCard = getMonthExp(m)
+    .filter(e => e.payment === 'cartao' && (e.card || 'bradesco') === cardId)
+    .reduce((s,e)=>s+e.val,0);
+  const fixedCard = getMonthFixedCardItems(m)
+    .filter(e => (e.card || 'bradesco') === cardId)
+    .reduce((s,e)=>s+e.val,0);
+  return expCard + fixedCard;
+}
+function getCashVarSpend(m) {
+  return getMonthExp(m)
+    .filter(e => e.payment !== 'cartao')
+    .reduce((s,e)=>s+e.val,0);
+}
+function getMonthFixedCardItems(m) {
+  return getAllFixed()
+    .map(f => {
+      const base = getFixedBaseValue(m, f);
+      if (base <= 0) return null;
+      if (f.payment !== 'cartao') return null;
+      return {
+        id: f.id,
+        desc: f.name,
+        val: getActual(m, f.id, base),
+        payment: 'cartao',
+        card: f.card || 'bradesco',
+        isFixedCard: true
+      };
+    })
+    .filter(Boolean);
+}
+function isCardPaid(m, cardId) { return !!state.cardPaid[`${m}-${cardId}`]; }
+function toggleCardPaid(m, cardId) {
+  const k = `${m}-${cardId}`;
+  state.cardPaid[k] = !state.cardPaid[k];
+  const icon = getCardLabel(cardId);
+  const status = state.cardPaid[k] ? 'Marcado como pago' : 'Desmarcado';
+  addActivityLog(`${state.cardPaid[k] ? '✅' : '↩️'} Fatura ${icon} ${fullMonthName(m)} ${status} (R$ ${fmt(getMonthCardTotal(m, cardId))})`, m);
+  saveData(); render();
+}
+function toDay(v) {
+  const d = parseInt(v, 10);
+  if (isNaN(d) || d < 1 || d > 31) return 1;
+  return d;
+}
+function paymentToFields(method) {
+  if (method === "cartao_nubank") return {payment: "cartao", card: "nubank"};
+  if (method === "cartao_bradesco") return {payment: "cartao", card: "bradesco"};
+  return {payment: "dinheiro", card: null};
+}
+function fieldsToPaymentValue(payment, card) {
+  if (payment !== "cartao") return "dinheiro";
+  return card === "nubank" ? "cartao_nubank" : "cartao_bradesco";
+}
+function fullMonthName(m) {
+  const names = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return names[(parseInt(m, 10) || 1) - 1] || names[0];
+}
+function methodIconByFields(payment, card) {
+  if (payment !== 'cartao') return '💵';
+  return card === 'nubank' ? '💳🟪' : '💳🟥';
+}
+function addActivityLog(message, month) {
+  const entry = {
+    id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
+    ts: Date.now(),
+    month: parseInt(month, 10) || state.trackMonth,
+    message
+  };
+  state.activityHistory = [entry, ...(state.activityHistory || [])].slice(0, 1000);
+}
+
+function togglePaid(m,id) {
+  const key = gk(m,id);
+  state.fixedPaid[key] = !state.fixedPaid[key];
+  const f = getAllFixed().find(x => x.id === id);
+  const base = f ? getFixedBaseValue(m, f) : 0;
+  const real = getActual(m, id, base);
+  const status = state.fixedPaid[key] ? 'Marcado como pago' : 'Desmarcado';
+  if (f) {
+    addActivityLog(`${state.fixedPaid[key] ? '✅' : '↩️'} Conta fixa ${f.name} ${(getFixedCatLabel(f.cat || 'casa'))} Dia ${toDay(f.day)} ${fullMonthName(m)} ${methodIconByFields(f.payment, f.card)} ${status} (R$ ${fmt(real)})`, m);
+  }
+  saveData(); render();
+}
+function updateActual(m,id,val) {
+  state.fixedActual[gk(m,id)] = val;
+  const f = getAllFixed().find(x => x.id === id);
+  if (f) addActivityLog(`✏️ Conta fixa ${f.name} valor real atualizado para R$ ${fmt(parseFloat(val) || 0)} em ${fullMonthName(m)}`, m);
+  saveData(); render();
+}
+
+function editFixed(m, id, current) {
+  const f = fixedBase.find(f=>f.id===id);
+  const base = getFixedBaseValue(m, f);
+  const nv = prompt(`Valor real para ${f.name}:`, current ?? base);
+  if (nv !== null && !isNaN(parseFloat(nv))) updateActual(m, id, parseFloat(nv));
+}
+
+function addIncome() {
+  if (!state.newIncome.desc || !state.newIncome.val) return;
+  const v = parseFloat(state.newIncome.val);
+  if (isNaN(v)) return;
+  const list = [...getMonthIncomes(state.trackMonth), {
+    desc: state.newIncome.desc,
+    value: v,
+    estimated: v,
+    actual: null,
+    day: toDay(state.newIncome.day),
+    received: false, id: Date.now()
+  }];
+  state.incomes[state.trackMonth] = list;
+  addActivityLog(`💵 Receita ${state.newIncome.desc} R$ ${fmt(v)} Dia ${toDay(state.newIncome.day)} ${fullMonthName(state.trackMonth)} registrada`, state.trackMonth);
+  state.newIncome = {desc: "", val: "", day: ""};
+  state.showIncomeForm = false; saveData(); render();
+}
+function removeIncome(m, idx) {
+  const l=[...getMonthIncomes(m)];
+  const item = l[idx];
+  l.splice(idx,1);
+  state.incomes[m]=l;
+  if (item) addActivityLog(`🗑 Receita ${item.desc} removida (${fullMonthName(m)})`, m);
+  saveData(); render();
+}
+function toggleIncomeReceived(m, idx) {
+  const l=[...getMonthIncomes(m)];
+  if (!l[idx]) return;
+  l[idx].received=!l[idx].received;
+  state.incomes[m]=l;
+  const status = l[idx].received ? 'Marcada como recebida' : 'Desmarcada';
+  addActivityLog(`${l[idx].received ? '✅' : '↩️'} Receita ${l[idx].desc} ${status} em ${fullMonthName(m)} (R$ ${fmt(getIncomeValue(l[idx]))})`, m);
+  saveData(); render();
+}
+function editIncome(m, idx, current) {
+  const nv = prompt('Valor da receita:', current || '');
+  if (nv !== null && nv !== '') {
+    const p=parseFloat(nv);
+    if(!isNaN(p)){
+      const l=[...getMonthIncomes(m)];
+      l[idx].value = p;
+      l[idx].estimated = p;
+      l[idx].actual = null;
+      state.incomes[m]=l;
+      addActivityLog(`✏️ Receita ${l[idx].desc} atualizada para R$ ${fmt(p)} em ${fullMonthName(m)}`, m);
+      saveData();
+      render();
+    }
+  }
+}
+function toggleIncomeForm() { state.showIncomeForm = !state.showIncomeForm; render(); }
+function updateNewIncome(f, v) { state.newIncome[f] = v; }
+
+function addExpense() {
+  if (!state.newExp.val || !state.newExp.desc) return;
+  const method = state.newExp.payment || "dinheiro";
+  const payFields = paymentToFields(method);
+  const list = [...getMonthBaseExp(state.trackMonth), {
+    cat: state.newExp.cat, desc: state.newExp.desc,
+    val: parseFloat(state.newExp.val),
+    payment: payFields.payment,
+    card: payFields.card,
+    day: toDay(state.newExp.day),
+    createdAt: Date.now()
+  }];
+  state.expenses[state.trackMonth] = list;
+  const catName = getCategoryById(state.newExp.cat)?.name || state.newExp.cat;
+  addActivityLog(`☑️ Gasto Variável ${catName} ${state.newExp.desc} R$ ${fmt(parseFloat(state.newExp.val) || 0)} Dia ${toDay(state.newExp.day)} ${fullMonthName(state.trackMonth)} ${methodIconByFields(payFields.payment, payFields.card)} registrado`, state.trackMonth);
+  state.newExp = {cat: "alimentacao", desc: "", val: "", payment: "dinheiro", day: ""};
+  state.showForm = false; saveData(); render();
+}
+function removeExp(m,idx) {
+  const l=[...getMonthBaseExp(m)];
+  const item = l[idx];
+  l.splice(idx,1);
+  state.expenses[m]=l;
+  if (item) addActivityLog(`🗑 Gasto Variável ${item.desc} removido (${fullMonthName(m)})`, m);
+  saveData(); render();
+}
+function updateExpCategory(m, idx, catId) {
+  const l = [...getMonthBaseExp(m)];
+  if (!l[idx]) return;
+  const fromCat = getCategoryById(l[idx].cat)?.name || l[idx].cat;
+  l[idx].cat = catId;
+  const toCat = getCategoryById(catId)?.name || catId;
+  state.expenses[m] = l;
+  addActivityLog(`✏️ Gasto ${l[idx].desc} mudou categoria: ${fromCat} → ${toCat} (${fullMonthName(m)})`, m);
+  saveData(); render();
+}
+function updateInstallmentCategory(instId, catId) {
+  if (!instId) return;
+  const i = state.customInstallments.findIndex(ci => ci.id === instId);
+  if (i >= 0) {
+    state.customInstallments[i].cat = catId;
+  } else {
+    state.instCatOverrides[instId] = catId;
+  }
+  saveData(); render();
+}
+
+function toggleVarClosed(m, catId) {
+  const k = `${m}-${catId}`;
+  state.varClosed[k] = !state.varClosed[k];
+  const catName = getCategoryById(catId)?.name || catId;
+  const status = state.varClosed[k] ? 'Concluída' : 'Reaberta';
+  addActivityLog(`${state.varClosed[k] ? '✅' : '↩️'} Categoria variável ${catName} ${status} em ${fullMonthName(m)}`, m);
+  saveData(); render();
+}
+
+function addFixed() {
+  if (!state.newFixed.name || !state.newFixed.val) return;
+  const v = parseFloat(state.newFixed.val);
+  if (isNaN(v)) return;
+  const pay = paymentToFields(state.newFixed.payment || "dinheiro");
+  state.customFixed.push({id:`custom_${Date.now()}`,name:state.newFixed.name,val:v,day:toDay(state.newFixed.day),payment:pay.payment,card:pay.card,cat:state.newFixed.cat || 'casa'});
+  addActivityLog(`📝 Conta fixa ${state.newFixed.name} ${(getFixedCatLabel(state.newFixed.cat || 'casa'))} Dia ${toDay(state.newFixed.day)} ${methodIconByFields(pay.payment, pay.card)} adicionada (Base R$ ${fmt(v)})`, state.trackMonth);
+  state.newFixed = {name:"",val:"",day:"",payment:"dinheiro",cat:"casa"};
+  state.showFixedForm = false;
+  saveData(); render();
+}
+function removeFixed(id) {
+  const idx = state.customFixed.findIndex(f=>f.id===id);
+  if (idx>=0) {
+    const item = state.customFixed[idx];
+    state.customFixed.splice(idx,1);
+    addActivityLog(`🗑 Conta fixa ${item.name} removida`, state.trackMonth);
+  }
+  saveData(); render();
+}
+function toggleFixedForm() { state.showFixedForm = !state.showFixedForm; render(); }
+function updateNewFixed(f,v) { state.newFixed[f] = v; }
+
+function addInstallment() {
+  if (!state.newInst.name || !state.newInst.total || !state.newInst.qty) return;
+  const qty = parseInt(state.newInst.qty, 10);
+  if (isNaN(qty) || qty < 1) return;
+  const totalValue = parseFloat(state.newInst.total);
+  if (isNaN(totalValue) || totalValue <= 0) return;
+  const payFields = paymentToFields(state.newInst.payment || "cartao_bradesco");
+  const ms = [];
+  for (let i = 0; i < qty; i++) {
+    const mm = state.trackMonth + i;
+    if (monthNums.includes(mm)) ms.push(mm);
+  }
+  if (!ms.length) return;
+  const installmentValue = totalValue / qty;
+  state.customInstallments.push({
+    name: state.newInst.name,
+    pm: installmentValue,
+    rem: ms,
+    total: qty,
+    startMonth: state.trackMonth,
+    cat: state.newInst.cat || "eventos",
+    payment: payFields.payment,
+    card: payFields.card,
+    day: toDay(state.newInst.day),
+    createdAt: Date.now(),
+    fixed: false,
+    id: Date.now()
+  });
+  const catName = getCategoryById(state.newInst.cat)?.name || state.newInst.cat;
+  addActivityLog(`☑️ Gasto Parcelado ${catName} ${state.newInst.name} R$ ${fmt(totalValue)} em ${qty}x Dia ${toDay(state.newInst.day)} ${fullMonthName(state.trackMonth)} ${methodIconByFields(payFields.payment, payFields.card)} registrado`, state.trackMonth);
+  state.newInst = {name:"",total:"",qty:"",cat:"alimentacao",payment:"cartao_bradesco",day:""};
+  state.showForm = false;
+  saveData(); render();
+}
+function removeInstallment(idx) {
+  const item = state.customInstallments[idx];
+  state.customInstallments.splice(idx,1);
+  if (item) addActivityLog(`🗑 Compra parcelada ${item.name} removida`, state.trackMonth);
+  saveData(); render();
+}
+function removeInstallmentById(instId) {
+  const idx = state.customInstallments.findIndex(ci => String(ci.id) === String(instId));
+  if (idx >= 0) {
+    const item = state.customInstallments[idx];
+    state.customInstallments.splice(idx, 1);
+    addActivityLog(`🗑 Compra parcelada ${item.name} removida`, state.trackMonth);
+    saveData();
+    render();
+  }
+}
+function updateNewInst(f,v) { state.newInst[f] = v; }
+function toggleForm() { state.showForm = !state.showForm; render(); }
+function updateNewExp(f,v) { state.newExp[f] = v; }
+function changeVarEntryTab(tab) { state.varEntryTab = tab; render(); }
+
+function openExpenseModal(type, m, ref) {
+  if (type === 'base') {
+    const item = getMonthBaseExp(m)[ref];
+    if (!item) return;
+    state.expenseModal = {
+      type: 'base',
+      month: m,
+      ref,
+      cat: item.cat,
+      desc: item.desc,
+      val: item.val,
+      day: toDay(item.day),
+      paymentValue: fieldsToPaymentValue(item.payment, item.card)
+    };
+    render();
+    return;
+  }
+  const allInst = [
+    ...instDetail.map(inst => state.instOverrides?.[inst.id] ? {...inst, ...state.instOverrides[inst.id]} : inst),
+    ...state.customInstallments
+  ];
+  const item = allInst.find(ci => String(ci.id) === String(ref));
+  if (!item) return;
+  const rem = normalizeInstMonths(item.rem || []);
+  state.expenseModal = {
+    type: 'inst',
+    month: m,
+    ref: item.id,
+    fixed: !!item.fixed,
+    cat: state.instCatOverrides?.[item.id] || item.cat || 'eventos',
+    desc: item.name,
+    val: item.pm,
+    day: toDay(item.day),
+    qty: item.total || rem.length || 1,
+    startMonth: item.startMonth || rem[0] || m,
+    paymentValue: fieldsToPaymentValue(item.payment || 'cartao', item.card || inferCardFromText(item.name))
+  };
+  render();
+}
+function closeExpenseModal() { state.expenseModal = null; render(); }
+function updateExpenseModal(field, value) {
+  if (!state.expenseModal) return;
+  state.expenseModal[field] = value;
+}
+function saveExpenseModal() {
+  if (!state.expenseModal) return;
+  const md = state.expenseModal;
+  const payFields = paymentToFields(md.paymentValue || 'dinheiro');
+  if (md.type === 'base') {
+    const l = [...getMonthBaseExp(md.month)];
+    const i = l[md.ref];
+    if (!i) return;
+    i.cat = md.cat;
+    i.desc = md.desc;
+    i.val = parseFloat(md.val) || 0;
+    i.day = toDay(md.day);
+    i.payment = payFields.payment;
+    i.card = payFields.card;
+    state.expenses[md.month] = l;
+    const catName = getCategoryById(i.cat)?.name || i.cat;
+    addActivityLog(`✏️ Gasto Variável editado ${catName} ${i.desc} R$ ${fmt(i.val)} Dia ${toDay(i.day)} ${fullMonthName(md.month)} ${methodIconByFields(i.payment, i.card)}`, md.month);
+  } else {
+    const qty = Math.max(1, parseInt(md.qty, 10) || 1);
+    const start = parseInt(md.startMonth, 10) || md.month || state.trackMonth;
+    const rem = [];
+    for (let k = 0; k < qty; k++) {
+      const mm = start + k;
+      if (monthNums.includes(mm)) rem.push(mm);
+    }
+    if (md.fixed) {
+      state.instCatOverrides[md.ref] = md.cat;
+      state.instOverrides[md.ref] = {
+        ...(state.instOverrides[md.ref] || {}),
+        name: md.desc,
+        pm: parseFloat(md.val) || 0,
+        day: toDay(md.day),
+        payment: payFields.payment,
+        card: payFields.card,
+        total: qty,
+        startMonth: start,
+        rem
+      };
+    } else {
+      const idx = state.customInstallments.findIndex(ci => String(ci.id) === String(md.ref));
+      if (idx >= 0) {
+        state.customInstallments[idx] = {
+          ...state.customInstallments[idx],
+          name: md.desc,
+          pm: parseFloat(md.val) || 0,
+          cat: md.cat,
+          day: toDay(md.day),
+          payment: payFields.payment,
+          card: payFields.card,
+          total: qty,
+          startMonth: start,
+          rem
+        };
+      }
+    }
+    const catName = getCategoryById(md.cat)?.name || md.cat;
+    addActivityLog(`✏️ Parcela editada ${catName} ${md.desc} R$ ${fmt(parseFloat(md.val) || 0)} ${qty}x ${methodIconByFields(payFields.payment, payFields.card)}`, md.month);
+  }
+  state.expenseModal = null;
+  saveData();
+  render();
+}
+function deleteExpenseModal() {
+  if (!state.expenseModal) return;
+  const md = state.expenseModal;
+  if (md.type === 'base') {
+    const l = [...getMonthBaseExp(md.month)];
+    const item = l[md.ref];
+    l.splice(md.ref, 1);
+    state.expenses[md.month] = l;
+    if (item) addActivityLog(`🗑 Gasto Variável ${item.desc} removido (${fullMonthName(md.month)})`, md.month);
+    state.expenseModal = null;
+    saveData();
+    render();
+    return;
+  }
+  if (!md.fixed) {
+    const idx = state.customInstallments.findIndex(ci => String(ci.id) === String(md.ref));
+    if (idx >= 0) {
+      const item = state.customInstallments[idx];
+      state.customInstallments.splice(idx, 1);
+      if (item) addActivityLog(`🗑 Compra parcelada ${item.name} removida`, md.month);
+    }
+    state.expenseModal = null;
+    saveData();
+    render();
+  }
+}
+
+function editVarCap(id, m) {
+  openVarCategoryModal(id, m);
+}
+function getFixedCatLabel(catId) {
+  return getFixedCategories().find(c => c.id === catId)?.name || 'Outros';
+}
+function editFixedCategoryName(catId) {
+  const current = getFixedCatLabel(catId);
+  const next = prompt('Nome da categoria fixa:', current);
+  if (next === null) return;
+  const name = String(next).trim();
+  if (!name) return;
+  state.fixedCatOverrides[catId] = {
+    ...(state.fixedCatOverrides[catId] || {}),
+    name
+  };
+  saveData();
+  render();
+}
+function openFixedModal(m, id) {
+  const all = getAllFixed();
+  const f = all.find(x => x.id === id);
+  if (!f) return;
+  const base = getFixedBaseValue(m, f);
+  const actual = getActual(m, id, base);
+  state.fixedModal = {
+    m,
+    id,
+    isCustom: String(id).startsWith('custom_'),
+    hasValByMonth: !!f.valByMonth,
+    name: f.name || '',
+    cat: f.cat || 'casa',
+    day: toDay(f.day),
+    paymentValue: fieldsToPaymentValue(f.payment || 'dinheiro', f.card),
+    baseVal: f.val ?? base,
+    actualVal: actual
+  };
+  render();
+}
+function closeFixedModal() {
+  state.fixedModal = null;
+  render();
+}
+function changeFixedModalMonth(newMonth) {
+  if (!state.fixedModal) return;
+  const m = parseInt(newMonth, 10);
+  if (!monthNums.includes(m)) return;
+  const all = getAllFixed();
+  const f = all.find(x => x.id === state.fixedModal.id);
+  if (!f) return;
+  const base = getFixedBaseValue(m, f);
+  const actual = getActual(m, state.fixedModal.id, base);
+  state.fixedModal.m = m;
+  state.fixedModal.baseVal = f.val ?? base;
+  state.fixedModal.actualVal = actual;
+  render();
+}
+function updateFixedModal(field, value) {
+  if (!state.fixedModal) return;
+  state.fixedModal[field] = value;
+}
+function saveFixedModal() {
+  const md = state.fixedModal;
+  if (!md) return;
+  const pay = paymentToFields(md.paymentValue || 'dinheiro');
+  const actualNum = parseFloat(md.actualVal);
+  if (!isNaN(actualNum)) state.fixedActual[gk(md.m, md.id)] = actualNum;
+  if (md.isCustom) {
+    const i = state.customFixed.findIndex(f => f.id === md.id);
+    if (i >= 0) {
+      const baseNum = parseFloat(md.baseVal);
+      state.customFixed[i] = {
+        ...state.customFixed[i],
+        name: md.name || state.customFixed[i].name,
+        cat: md.cat || 'casa',
+        day: toDay(md.day),
+        payment: pay.payment,
+        card: pay.card,
+        val: isNaN(baseNum) ? state.customFixed[i].val : baseNum
+      };
+    }
+  } else {
+    const baseNum = parseFloat(md.baseVal);
+    const next = {
+      ...(state.fixedOverrides[md.id] || {}),
+      name: md.name || '',
+      cat: md.cat || 'casa',
+      day: toDay(md.day),
+      payment: pay.payment,
+      card: pay.card
+    };
+  if (!md.hasValByMonth && !isNaN(baseNum)) next.val = baseNum;
+  state.fixedOverrides[md.id] = next;
+  }
+  const f = getAllFixed().find(x => x.id === md.id);
+  if (f) {
+    addActivityLog(`✏️ Conta fixa ${md.name || f.name} atualizada em ${fullMonthName(md.m)} ${methodIconByFields(pay.payment, pay.card)} (Real R$ ${fmt(parseFloat(md.actualVal) || 0)})`, md.m);
+  }
+  state.fixedModal = null;
+  saveData();
+  render();
+}
+function deleteFixedModal() {
+  const md = state.fixedModal;
+  if (!md || !md.isCustom) return;
+  const idx = state.customFixed.findIndex(f => f.id === md.id);
+  if (idx >= 0) {
+    const item = state.customFixed[idx];
+    state.customFixed.splice(idx, 1);
+    addActivityLog(`🗑 Conta fixa ${item.name} removida`, md.m);
+  }
+  state.fixedModal = null;
+  saveData();
+  render();
+}
+function renderFixedModal() {
+  const md = state.fixedModal;
+  if (!md) return '';
+  return `
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px" onclick="closeFixedModal()">
+      <div style="width:min(560px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="color:#1e293b">Editar Conta Fixa</strong>
+          <button onclick="closeFixedModal()" style="border:none;background:none;cursor:pointer;font-size:18px;color:#64748b">✕</button>
+        </div>
+        <div style="margin-bottom:8px">
+          <label class="form-label">Mês do lançamento</label>
+          <select onchange="changeFixedModalMonth(this.value)">
+            ${monthNums.map(mm=>`<option value="${mm}" ${md.m===mm?'selected':''}>${months[monthNums.indexOf(mm)]} 2026</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="grid-column:1 / -1"><label class="form-label">Nome</label><input value="${md.name}" oninput="updateFixedModal('name',this.value)"></div>
+          <div><label class="form-label">Categoria</label>
+            <select onchange="updateFixedModal('cat',this.value)">${getFixedCategories().map(c=>`<option value="${c.id}" ${md.cat===c.id?'selected':''}>${c.name}</option>`).join('')}</select>
+          </div>
+          <div><label class="form-label">Pagamento</label>
+            <select onchange="updateFixedModal('paymentValue',this.value)">
+              <option value="dinheiro" ${md.paymentValue==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+              <option value="cartao_nubank" ${md.paymentValue==='cartao_nubank'?'selected':''}>💳 🟪</option>
+              <option value="cartao_bradesco" ${md.paymentValue==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+            </select>
+          </div>
+          <div><label class="form-label">Dia</label><input type="number" min="1" max="31" value="${toDay(md.day)}" oninput="updateFixedModal('day',this.value)"></div>
+          <div><label class="form-label">Valor Base (R$)</label><input type="number" ${md.hasValByMonth && !md.isCustom ? 'disabled' : ''} value="${md.baseVal}" oninput="updateFixedModal('baseVal',this.value)"></div>
+          <div><label class="form-label">Valor Real no Mês (R$)</label><input type="number" value="${md.actualVal}" oninput="updateFixedModal('actualVal',this.value)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px">
+          <div>${md.isCustom?`<button class="btn btn-cancel" onclick="deleteFixedModal()" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c">🗑 Excluir</button>`:''}</div>
+          <div style="display:flex;gap:8px">
+          <button class="btn btn-cancel" onclick="closeFixedModal()">Cancelar</button>
+          <button class="btn btn-add" onclick="saveFixedModal()">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function toggleCatDetails(id) {
+  state.openCatDetails[id] = !state.openCatDetails[id];
+  render();
+}
+function toggleAnalyticsDetails(id) {
+  state.analyticsDetails[id] = !state.analyticsDetails[id];
+  render();
+}
+function getAnalyticsParentDefs() {
+  const base = [
+    {id:'casa', label:'🏠 Casa', fixedCats:['casa'], varCats:['limpeza']},
+    {id:'alimentacao', label:'🍽️ Alimentação', fixedCats:[], varCats:['alimentacao','formula_v']},
+    {id:'conforto', label:'🛋️ Conforto', fixedCats:[], varCats:['conforto','conforto_2025']},
+    {id:'educacao', label:'🎓 Educação/Atividades', fixedCats:['educacao','atividades'], varCats:['educacao']},
+    {id:'impostos', label:'🧾 Impostos', fixedCats:['impostos'], varCats:[]},
+    {id:'utilidades', label:'💡 Utilidades', fixedCats:['utilidades','internet'], varCats:['gasolina_v']},
+    {id:'eventos', label:'🎉 Eventos/Viagens/Extras', fixedCats:[], varCats:['eventos','viagem_eua','extras','casamento']}
+  ];
+  return base.map(p => {
+    const ov = state.analyticsParentOverrides?.[p.id] || {};
+    return {
+      ...p,
+      label: ov.label || p.label,
+      fixedCats: Array.isArray(ov.fixedCats) ? ov.fixedCats : p.fixedCats,
+      varCats: Array.isArray(ov.varCats) ? ov.varCats : p.varCats
+    };
+  });
+}
+function openAnalyticsCategoryEntries(kind, id) {
+  const mode = state.analyticsTab || 'mensal';
+  const scopeMonths = mode === 'anual' ? monthNums : [state.trackMonth];
+  const parents = getAnalyticsParentDefs();
+  let title = '';
+  let varIds = [];
+  let fixedIds = [];
+
+  if (kind === 'parent') {
+    const p = parents.find(x=>x.id===id);
+    if (!p) return;
+    title = p.label;
+    varIds = p.varCats || [];
+    fixedIds = p.fixedCats || [];
+  } else if (kind === 'var') {
+    const c = getCategoryById(id);
+    if (!c) return;
+    title = c.name;
+    varIds = [id];
+  } else if (kind === 'fixed') {
+    title = getFixedCatLabel(id);
+    fixedIds = [id];
+  } else {
+    return;
+  }
+
+  const items = [];
+  scopeMonths.forEach(mm => {
+    getMonthExp(mm).forEach(e => {
+      if (!varIds.includes(e.cat)) return;
+      items.push({
+        mm,
+        day: toDay(e.day),
+        desc: e.desc,
+        method: getPaymentMethodLabel(e),
+        val: e.val,
+        type: 'Variável'
+      });
+    });
+    getAllFixed().forEach(f => {
+      if (!fixedIds.includes(f.cat || 'casa')) return;
+      const base = getFixedBaseValue(mm, f);
+      if (base <= 0) return;
+      const val = isPaid(mm, f.id) ? getActual(mm, f.id, base) : base;
+      items.push({
+        mm,
+        day: toDay(f.day),
+        desc: f.name,
+        method: getPaymentMethodLabel(f),
+        val,
+        type: 'Fixa'
+      });
+    });
+  });
+  items.sort((a,b)=> b.mm-a.mm || b.day-a.day || b.val-a.val);
+  state.analyticsEntriesModal = {title, mode, items};
+  render();
+}
+function closeAnalyticsEntriesModal() {
+  state.analyticsEntriesModal = null;
+  render();
+}
+function renderAnalyticsEntriesModal() {
+  const md = state.analyticsEntriesModal;
+  if (!md) return '';
+  return `
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px" onclick="closeAnalyticsEntriesModal()">
+      <div style="background:#fff;border-radius:12px;padding:14px;width:min(760px,100%);max-height:80vh;overflow:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="color:#1e293b">Lançamentos — ${md.title}</strong>
+          <button class="btn btn-cancel" onclick="closeAnalyticsEntriesModal()">Fechar</button>
+        </div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:8px">${md.mode==='anual'?'Ano inteiro':'Mês selecionado'}</div>
+        <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <table style="font-size:12px;width:100%">
+            <thead><tr style="background:#1e293b;color:#fff">
+              <th style="padding:8px 10px;text-align:left">Mês</th>
+              <th style="padding:8px 10px;text-align:left">Dia</th>
+              <th style="padding:8px 10px;text-align:left">Tipo</th>
+              <th style="padding:8px 10px;text-align:left">Descrição</th>
+              <th style="padding:8px 10px;text-align:left">Método</th>
+              <th style="padding:8px 10px;text-align:right">Valor</th>
+            </tr></thead>
+            <tbody>
+              ${md.items.length===0?`<tr><td colspan="6" style="padding:12px;text-align:center;color:#64748b">Sem lançamentos nesta categoria.</td></tr>`:md.items.map((it,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px">${months[monthNums.indexOf(it.mm)]}</td><td style="padding:7px 10px">${it.day}</td><td style="padding:7px 10px">${it.type}</td><td style="padding:7px 10px">${it.desc}</td><td style="padding:7px 10px">${it.method}</td><td style="padding:7px 10px;text-align:right;font-weight:700">R$ ${fmt(it.val)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function openVarCategoryModal(id, m) {
+  const cat = getCategoryById(id);
+  if (!cat) return;
+  state.varCatModal = {
+    id,
+    m,
+    name: cat.name || '',
+    budget: getCatBudget(cat, m),
+    desc: cat.desc || ''
+  };
+  render();
+}
+function closeVarCategoryModal() {
+  state.varCatModal = null;
+  render();
+}
+function updateVarCategoryModal(field, value) {
+  if (!state.varCatModal) return;
+  state.varCatModal[field] = value;
+}
+function saveVarCategoryModal() {
+  const md = state.varCatModal;
+  if (!md) return;
+  const nb = parseFloat(String(md.budget).replace(',','.'));
+  state.catOverrides[md.id] = {
+    ...state.catOverrides[md.id],
+    name: md.name || '',
+    budget: isNaN(nb) || nb < 0 ? 0 : nb,
+    desc: md.desc || ''
+  };
+  state.varCatModal = null;
+  saveData();
+  render();
+}
+function renderVarCategoryModal() {
+  const md = state.varCatModal;
+  if (!md) return '';
+  return `
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9997;display:flex;align-items:center;justify-content:center;padding:16px" onclick="closeVarCategoryModal()">
+      <div style="width:min(520px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="color:#1e293b">Editar Categoria</strong>
+          <button onclick="closeVarCategoryModal()" style="border:none;background:none;cursor:pointer;font-size:18px;color:#64748b">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:8px">
+          <div><label class="form-label">Nome</label>
+            <input value="${md.name}" oninput="updateVarCategoryModal('name',this.value)"></div>
+          <div><label class="form-label">Cap mensal (R$)</label>
+            <input type="number" min="0" value="${md.budget}" oninput="updateVarCategoryModal('budget',this.value)"></div>
+          <div><label class="form-label">Descrição</label>
+            <textarea oninput="updateVarCategoryModal('desc',this.value)" style="width:100%;min-height:88px;padding:8px;border-radius:6px;border:1px solid #d1d5db;font-size:12px;resize:vertical">${md.desc || ''}</textarea>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button class="btn btn-cancel" onclick="closeVarCategoryModal()">Cancelar</button>
+          <button class="btn btn-add" onclick="saveVarCategoryModal()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getAllFixed() {
+  const base = fixedBase.map(f => state.fixedOverrides?.[f.id] ? {...f, ...state.fixedOverrides[f.id]} : f);
+  return [...base, ...state.customFixed];
+}
+function fixedPaidCount(m) { return getAllFixed().filter(f=>isPaid(m,f.id)).length; }
+function fixedPaidTotal(m) { return getAllFixed().reduce((s,f)=>isPaid(m,f.id)?s+getActual(m,f.id,getFixedBaseValue(m,f)):s,0); }
+function fixedPaidTotalCash(m) { return getAllFixed().reduce((s,f)=>isPaid(m,f.id) && f.payment!=='cartao'?s+getActual(m,f.id,getFixedBaseValue(m,f)):s,0); }
+function fixedTotalActual(m) { return getAllFixed().reduce((s,f)=>s+getActual(m,f.id,getFixedBaseValue(m,f)),0); }
+function getWeeklyConsMonthItems(m) {
+  return consWeeklySchedule.filter(w => w.month === m);
+}
+function getWeeklyConsMonthBase(m) {
+  return getWeeklyConsMonthItems(m).reduce((s,w)=>s+w.amount,0);
+}
+function getWeeklyConsMonthPaid(m) {
+  return getWeeklyConsMonthItems(m).filter(w=>isWeeklyConsPaid(w.id)).reduce((s,w)=>s+w.amount,0);
+}
+function getConsMonthBase(m) {
+  return (consM[m] || 0) + getWeeklyConsMonthBase(m);
+}
+function getConsMonthPaid(m) {
+  return (isConsPaid(m, 'm') ? (consM[m] || 0) : 0) + getWeeklyConsMonthPaid(m);
+}
+
+// ========== CORE: calculateData ==========
+function calculateData() {
+  const data = []; let cum = 0; let invested = 0;
+  for (let i = 0; i < monthNums.length; i++) {
+    const m = monthNums[i];
+    
+    // === RECEITAS ===
+    const monthInc = getMonthIncomes(m);
+    let income, incIsReal = false;
+    if (monthInc.length > 0) {
+      income = monthInc.reduce((s, inc) => s + getIncomeValue(inc), 0);
+      incIsReal = true;
+    } else {
+      income = GAB + GABI * gc[m] + (extraIncome[m] || 0);
+    }
+    
+    // === FIXAS: pago→real, não pago→estimativa ===
+    let fixedUsed = 0, fixIsReal = false;
+    for (const f of getAllFixed()) {
+      const base = getFixedBaseValue(m, f);
+      if (isPaid(m, f.id)) { fixedUsed += getActual(m, f.id, base); fixIsReal = true; }
+      else { fixedUsed += base; }
+    }
+    const consBase = getConsMonthBase(m);
+    const consPaid = getConsMonthPaid(m);
+    fixedUsed += consBase;
+    if (consPaid > 0) fixIsReal = true;
+    
+    // === VARIÁVEIS: por categoria, usa real se marcada como concluída ===
+    const cats = getCategories();
+    let varUsed = 0, varIsReal = false;
+    for (const c of cats) {
+      const budget = getCatBudget(c, m);
+      const spent = catSpent(m, c.id);
+      const closed = !!state.varClosed[`${m}-${c.id}`];
+      if (budget <= 0) { varUsed += spent; if (spent > 0) varIsReal = true; }
+      else if (closed) { varUsed += spent; varIsReal = true; }
+      else { varUsed += budget; }
+    }
+    
+    // === PARCELAS ===
+    const instTotal = getInstallmentItems(m).reduce((s, inst) => s + inst.val, 0);
+    
+    const totalExp = fixedUsed + varUsed;
+    const net = income - totalExp;
+    cum += net;
+    if (m < 4) invested = cum;
+    else invested = (invested * 1.009) + net;
+    
+    data.push({ month:months[i], m, income, fixedUsed, varUsed, inst:instTotal, totalExp, net, cum, invested, incIsReal, fixIsReal, varIsReal });
+  }
+  return data;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const data = calculateData();
+  let currentSaldo = 0;
+  for (const mm of monthNums) {
+    const monthInc = getMonthIncomes(mm);
+    const incRec = monthInc.filter(i=>i.received).reduce((s,i)=>s+getIncomeValue(i),0);
+    const fixPaid = fixedPaidTotalCash(mm) + getConsMonthPaid(mm);
+    const varCashConfirmed = getCashVarSpend(mm);
+    const cardPaid = cards.reduce((s,c)=>s + (isCardPaid(mm, c.id) ? getMonthCardTotal(mm, c.id) : 0), 0);
+    currentSaldo += incRec - fixPaid - varCashConfirmed - cardPaid;
+  }
+  app.innerHTML = `
+    <h2>💰 Sucesso Financeiro 2026</h2>
+    <p class="subtitle" style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap">Gabriel & Gabriella <span id="saveStatus" style="color:${cloudOk?'#16a34a':storageOk?'#0284c7':'#d97706'}">${cloudOk?'✅ Nuvem conectada':storageOk?'✅ Modo local':'⚠️ Sem persistência garantida'}</span></p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px">
+      ${monthSelector()}
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin:-4px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <button onclick="openQuickExpenseForm()" style="font-size:11px;padding:7px 12px;border:1px dashed #93c5fd;border-radius:8px;background:#eff6ff;cursor:pointer;color:#1d4ed8;font-weight:700">+ Registrar Novo Gasto</button>
+      <button onclick="openQuickIncomeForm()" style="font-size:11px;padding:7px 12px;border:1px dashed #86efac;border-radius:8px;background:#f0fdf4;cursor:pointer;color:#166534;font-weight:700">+ Adicionar Receita</button>
+      <span style="font-size:11px;font-weight:700;color:${currentSaldo>=0?'#16a34a':'#dc2626'};background:${currentSaldo>=0?'#dcfce7':'#fee2e2'};border:1px solid ${currentSaldo>=0?'#86efac':'#fecaca'};border-radius:8px;padding:7px 10px;white-space:nowrap">Saldo: R$ ${fmt(currentSaldo)}</span>
+    </div>
+    <div class="tabs">
+      ${[
+        {id:'resumo', icon:'📊', label:'Resumo'},
+        {id:'analytics', icon:'📈', label:'Analytics'},
+        {id:'variaveis', icon:'☑️', label:'Variáveis'},
+        {id:'fixas', icon:'✅', label:'Fixas'},
+        {id:'receitas', icon:'💵', label:'Receitas'},
+        {id:'cartao', icon:'💳', label:'Cartão'},
+        {id:'historico', icon:'🕒', label:'Histórico'},
+        {id:'settings', icon:'⚙️', label:'Settings'}
+      ].map(t=>{
+        const active = state.tab===t.id;
+        return `<button class="tab-btn ${active?'active':''}" onclick="changeTab('${t.id}')">${active?`${t.icon} ${t.label}`:t.icon}</button>`;
+      }).join('')}
+    </div>
+    ${state.tab==='resumo'?renderResumo(data):''}
+    ${state.tab==='analytics'?renderAnalytics():''}
+    ${state.tab==='receitas'?renderReceitas():''}
+    ${state.tab==='fixas'?renderFixas():''}
+    ${state.tab==='variaveis'?renderVariaveis():''}
+    ${state.tab==='cartao'?renderCartao():''}
+    ${state.tab==='historico'?renderHistorico():''}
+    ${state.tab==='settings'?renderSettings():''}
+    ${renderFixedModal()}
+    ${renderExpenseModal()}
+    ${renderVarCategoryModal()}
+    ${renderAnalyticsEntriesModal()}
+  `;
+}
+
+function changeTab(t) { state.tab = t; render(); }
+function openQuickExpenseForm() { state.tab = 'variaveis'; state.showForm = true; render(); }
+function openQuickIncomeForm() { state.tab = 'receitas'; state.showIncomeForm = true; render(); }
+function changeCardSubTab(cardId) { state.cardSubTab = cardId; render(); }
+function changeAnalyticsTab(tab) { state.analyticsTab = tab; render(); }
+function changeMonth(m) { state.trackMonth = m; saveData(); render(); }
+function updateSettingVarCat(catId, field, value) {
+  const customIdx = (state.customVarCats || []).findIndex(c => c.id === catId);
+  if (customIdx >= 0) {
+    const next = [...state.customVarCats];
+    if (field === 'budget') {
+      const n = parseFloat(String(value).replace(',', '.'));
+      next[customIdx][field] = isNaN(n) ? 0 : n;
+    } else {
+      next[customIdx][field] = value;
+    }
+    state.customVarCats = next;
+  } else {
+    const prev = state.catOverrides[catId] || {};
+    if (field === 'name' || field === 'desc') {
+      state.catOverrides[catId] = {...prev, [field]: value};
+    } else if (field === 'budget') {
+      const n = parseFloat(String(value).replace(',', '.'));
+      state.catOverrides[catId] = {...prev, budget: isNaN(n) ? 0 : n};
+    }
+  }
+  saveData();
+  render();
+}
+function updateSettingFixedCat(catId, value) {
+  state.fixedCatOverrides[catId] = {
+    ...(state.fixedCatOverrides[catId] || {}),
+    name: value
+  };
+  saveData();
+  render();
+}
+function slugifyCategoryName(name) {
+  return String(name || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+function updateNewVarCat(field, value) {
+  state.newVarCat[field] = value;
+  render();
+}
+function addVarCategoryFromSettings() {
+  const name = String(state.newVarCat.name || '').trim();
+  if (!name) return;
+  const idBase = slugifyCategoryName(name) || `cat_${Date.now()}`;
+  let id = idBase;
+  let n = 2;
+  const exists = () => getCategories().some(c => c.id === id);
+  while (exists()) { id = `${idBase}_${n++}`; }
+  const budget = parseFloat(String(state.newVarCat.budget || '').replace(',', '.'));
+  const desc = String(state.newVarCat.desc || '').trim();
+  state.customVarCats = [...(state.customVarCats || []), {
+    id,
+    name,
+    budget: isNaN(budget) ? 0 : budget,
+    desc
+  }];
+  state.newVarCat = {name:"", budget:"", desc:""};
+  addActivityLog(`⚙️ Nova categoria variável ${name} criada`, state.trackMonth);
+  saveData();
+  render();
+}
+function removeCustomVarCategory(catId) {
+  const idx = (state.customVarCats || []).findIndex(c => c.id === catId);
+  if (idx < 0) return;
+  const item = state.customVarCats[idx];
+  const next = [...state.customVarCats];
+  next.splice(idx, 1);
+  state.customVarCats = next;
+  Object.keys(state.analyticsParentOverrides || {}).forEach(pid => {
+    const ov = state.analyticsParentOverrides[pid];
+    if (!ov) return;
+    if (Array.isArray(ov.varCats)) {
+      state.analyticsParentOverrides[pid] = {
+        ...ov,
+        varCats: ov.varCats.filter(v => v !== catId)
+      };
+    }
+  });
+  addActivityLog(`⚙️ Categoria variável ${item.name} removida`, state.trackMonth);
+  saveData();
+  render();
+}
+function updateSettingParent(parentId, field, value) {
+  const prev = state.analyticsParentOverrides[parentId] || {};
+  if (field === 'label') {
+    state.analyticsParentOverrides[parentId] = {...prev, label: value};
+  } else if (field === 'fixedCats' || field === 'varCats') {
+    const arr = String(value || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    state.analyticsParentOverrides[parentId] = {...prev, [field]: arr};
+  }
+  saveData();
+  render();
+}
+
+function monthSelector() {
+  const monthInitials = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  const monthFull = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return `<div class="month-sel">${monthNums.map((mn,i)=>{
+    const active = state.trackMonth===mn;
+    return `<button class="month-btn ${active?'active':''}" onclick="changeMonth(${mn})">${active?monthFull[i]:monthInitials[i]}</button>`;
+  }).join('')}</div>`;
+}
+function renderExpenseModal() {
+  const md = state.expenseModal;
+  if (!md) return '';
+  const isInst = md.type === 'inst';
+  return `
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px" onclick="closeExpenseModal()">
+      <div style="width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="color:#1e293b">${isInst?'Editar Parcela':'Editar Gasto'}</strong>
+          <button onclick="closeExpenseModal()" style="border:none;background:none;cursor:pointer;font-size:18px;color:#64748b">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end">
+          <div><label class="form-label">Categoria</label>
+            <select onchange="updateExpenseModal('cat',this.value)">
+              ${getCategories().map(c=>`<option value="${c.id}" ${md.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+            </select></div>
+          <div><label class="form-label">Descrição</label>
+            <input value="${md.desc||''}" oninput="updateExpenseModal('desc',this.value)"></div>
+          <div><label class="form-label">Valor (R$)</label>
+            <input type="number" value="${md.val}" oninput="updateExpenseModal('val',this.value)"></div>
+          <div><label class="form-label">Dia</label>
+            <input type="number" min="1" max="31" value="${toDay(md.day)}" oninput="updateExpenseModal('day',this.value)"></div>
+          <div><label class="form-label">Pagamento</label>
+            <select onchange="updateExpenseModal('paymentValue',this.value)">
+              <option value="dinheiro" ${md.paymentValue==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+              <option value="cartao_nubank" ${md.paymentValue==='cartao_nubank'?'selected':''}>💳 🟪</option>
+              <option value="cartao_bradesco" ${md.paymentValue==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+            </select></div>
+          ${isInst?`
+            <div><label class="form-label">Parcelas</label>
+              <input type="number" min="1" value="${md.qty}" oninput="updateExpenseModal('qty',this.value)"></div>
+            <div><label class="form-label">Mês inicial</label>
+              <select onchange="updateExpenseModal('startMonth',this.value)">
+                ${monthNums.map(mm=>`<option value="${mm}" ${Number(md.startMonth)===mm?'selected':''}>${months[monthNums.indexOf(mm)]}</option>`).join('')}
+              </select></div>
+          `:''}
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px">
+          <div>
+            ${(!md.fixed || md.type==='base')?`<button class="btn btn-cancel" onclick="deleteExpenseModal()" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c">🗑 Excluir</button>`:''}
+          </div>
+          <div style="display:flex;gap:8px">
+          <button class="btn btn-cancel" onclick="closeExpenseModal()">Cancelar</button>
+          <button class="btn btn-add" onclick="saveExpenseModal()">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== RESUMO ====================
+function renderResumo(data) {
+  const lastCum = data[data.length-1].cum;
+  const m = state.trackMonth;
+  const mData = data.find(d => d.m === m);
+  const mi = monthNums.indexOf(m);
+
+  // Saldo em conta real atual: considera tudo que já foi marcado como concluído
+  let saldo = 0;
+  for (const mm of monthNums) {
+    const monthInc = getMonthIncomes(mm);
+    const incRec = monthInc.filter(i=>i.received).reduce((s,i)=>s+getIncomeValue(i),0);
+    const fixPaid = fixedPaidTotalCash(mm) + getConsMonthPaid(mm);
+    const varCashConfirmed = getCashVarSpend(mm);
+    const cardPaid = cards.reduce((s,c)=>s + (isCardPaid(mm, c.id) ? getMonthCardTotal(mm, c.id) : 0), 0);
+    saldo += incRec - fixPaid - varCashConfirmed - cardPaid;
+  }
+  
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">📊 Resumo — ${months[mi]} 2026</h3>
+    <div class="grid-4">
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:11px;color:#64748b">Receita ${months[mi]}</div>
+        <div style="font-size:17px;font-weight:700;color:#1d4ed8">R$ ${fmt(mData.income)}</div>
+        <div style="font-size:9px;margin-top:2px">${mData.incIsReal?'<span class="real-tag">LANÇADO</span>':'<span class="est-tag">ESTIMADO</span>'}</div>
+      </div>
+      <div class="stat-card" style="background:#fef2f2">
+        <div style="font-size:11px;color:#64748b">Despesas ${months[mi]}</div>
+        <div style="font-size:17px;font-weight:700;color:#dc2626">R$ ${fmt(mData.totalExp)}</div>
+        <div style="font-size:9px;margin-top:2px">${mData.fixIsReal||mData.varIsReal?'<span class="real-tag">PARCIAL REAL</span>':'<span class="est-tag">ESTIMADO</span>'}</div>
+      </div>
+      <div class="stat-card" style="background:${saldo>=0?'#f0fdf4':'#fef2f2'}">
+        <div style="font-size:11px;color:#64748b">Saldo em Conta (Real)</div>
+        <div style="font-size:17px;font-weight:700;color:${saldo>=0?'#16a34a':'#dc2626'}">R$ ${fmt(saldo)}</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px">Valor atual: receitas recebidas - fixas pagas em dinheiro (inclui consórcios) - dinheiro lançado - faturas pagas</div>
+      </div>
+      <div class="stat-card" style="background:${lastCum>0?'#f0fdf4':'#fef2f2'}">
+        <div style="font-size:11px;color:#64748b">Poupança Dez/26</div>
+        <div style="font-size:17px;font-weight:700;color:${lastCum>=0?'#16a34a':'#dc2626'}">R$ ${fmt(lastCum)}</div>
+      </div>
+    </div>
+    
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0">
+      <table style="font-size:10px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="text-align:left;padding-left:6px">Mês</th><th>Receita</th><th>Fixas</th><th>Variáveis</th>
+          <th>Total</th><th>Result.</th><th>Poupança</th><th>Banco (0,9%)</th>
+        </tr></thead>
+        <tbody>
+          ${data.map((d,i)=>{
+            const hasReal = d.incIsReal || d.fixIsReal || d.varIsReal;
+            const b = v => v ? 700 : 400;
+            return `
+            <tr style="background:${hasReal?'#eff6ff':i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:6px;font-weight:700">${d.month}${hasReal?'<span style="font-size:8px;color:#3b82f6;margin-left:2px">●</span>':''}</td>
+              <td style="padding:6px;text-align:right;color:#1d4ed8;font-weight:${b(d.incIsReal)}">${fmt(d.income)}</td>
+              <td style="padding:6px;text-align:right;color:#dc2626;font-weight:${b(d.fixIsReal)}">${fmt(d.fixedUsed)}</td>
+              <td style="padding:6px;text-align:right;color:#d97706;font-weight:${b(d.varIsReal)}">${fmt(d.varUsed)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700">${fmt(d.totalExp)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700;color:${d.net>=0?'#16a34a':'#dc2626'};background:${d.net>=0?'#f0fdf4':'#fef2f2'};border-radius:4px">${d.net>=0?'+':''}${fmt(d.net)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700;color:${d.cum>=0?'#16a34a':'#dc2626'};font-size:11px">R$ ${fmt(d.cum)}</td>
+              <td style="padding:6px;text-align:right;font-weight:700;color:${d.invested>=0?'#0f766e':'#dc2626'};font-size:11px">R$ ${fmt(d.invested)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>●</strong> Azul = dados reais · <strong>Negrito</strong> = confirmado · Normal = estimativa
+    </div>
+    <div class="alert alert-warning">
+      <strong>⚠️ Meses críticos:</strong> Fev e mar (viagem). A partir de junho a sobra cresce.
+    </div>
+  `;
+}
+
+// ==================== ANALYTICS ====================
+function renderAnalytics() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const cats = getCategories();
+  const controllable = cats.filter(c=>getCatBudget(c,m)>0);
+  const legacy = cats.filter(c=>getCatBudget(c,m)<=0);
+  const mode = state.analyticsTab || 'mensal';
+  const parentDefs = getAnalyticsParentDefs();
+  const buildParentDetailHtml = (p) => {
+    const fixedNames = p.fixedCats
+      .map(id => getFixedCatLabel(id))
+      .filter(Boolean);
+    const varNames = p.varCats
+      .map(id => getCategoryById(id)?.name || null)
+      .filter(Boolean);
+    const fixedHtml = fixedNames.length ? fixedNames.join(', ') : '—';
+    const varHtml = varNames.length ? varNames.join(', ') : '—';
+    return `<div style="font-size:10px;color:#475569;line-height:1.35;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-top:4px"><div><strong>Fixas:</strong> ${fixedHtml}</div><div><strong>Variáveis:</strong> ${varHtml}</div></div>`;
+  };
+
+  const computeAnnualData = (monthList) => {
+    const byParent = Object.fromEntries(parentDefs.map(p=>[p.id,{meta:0,current:0,donut:0}]));
+
+    monthList.forEach(mm => {
+      const monthExp = getMonthExp(mm);
+
+      // FIXAS: meta = base, current = pago, donut = estimado (base) até confirmar (actual)
+      getAllFixed().forEach(f => {
+        const base = getFixedBaseValue(mm, f);
+        if (base <= 0) return;
+        const pid = parentDefs.find(p => p.fixedCats.includes(f.cat || 'casa'))?.id;
+        if (!pid) return;
+        const actual = getActual(mm, f.id, base);
+        byParent[pid].meta += base;
+        byParent[pid].current += isPaid(mm, f.id) ? actual : 0;
+        byParent[pid].donut += isPaid(mm, f.id) ? actual : base;
+      });
+
+      // VARIÁVEIS: meta = cap (se houver), current = lançado, donut = estimado até confirmar
+      cats.forEach(c => {
+        const pid = parentDefs.find(p => p.varCats.includes(c.id))?.id;
+        if (!pid) return; // exclui cartao_emprestado
+        const budget = getCatBudget(c, mm);
+        const spent = monthExp.filter(e=>e.cat===c.id).reduce((s,e)=>s+e.val,0);
+        const closed = !!state.varClosed[`${mm}-${c.id}`];
+        byParent[pid].current += spent;
+        if (budget > 0) {
+          byParent[pid].meta += budget;
+          byParent[pid].donut += closed ? spent : budget;
+        } else {
+          byParent[pid].meta += spent;
+          byParent[pid].donut += spent;
+        }
+      });
+    });
+
+    const bars = parentDefs.map(p => ({
+      ...p,
+      meta: byParent[p.id].meta,
+      current: byParent[p.id].current,
+      donut: byParent[p.id].donut
+    }));
+    const donutRows = bars.filter(b=>b.donut>0).sort((a,b)=>b.donut-a.donut);
+    const mergedTotal = donutRows.reduce((s,r)=>s+r.donut,0);
+    return {bars, donutRows, mergedTotal};
+  };
+
+  const computeMonthlyData = (mm) => {
+    const byParent = Object.fromEntries(parentDefs.map(p=>[p.id,0]));
+
+    getAllFixed().forEach(f => {
+      const base = getFixedBaseValue(mm, f);
+      if (base <= 0) return;
+      if (!isPaid(mm, f.id)) return;
+      const pid = parentDefs.find(p => p.fixedCats.includes(f.cat || 'casa'))?.id;
+      if (!pid) return;
+      byParent[pid] += getActual(mm, f.id, base);
+    });
+
+    cats.forEach(c => {
+      const pid = parentDefs.find(p => p.varCats.includes(c.id))?.id;
+      if (!pid) return;
+      const spent = catSpent(mm, c.id);
+      byParent[pid] += spent;
+    });
+
+    const rows = parentDefs
+      .map(p => ({...p, val: byParent[p.id]}))
+      .filter(r => r.val > 0)
+      .sort((a,b)=>b.val-a.val);
+    const total = rows.reduce((s,r)=>s+r.val,0);
+    return {rows, total};
+  };
+
+  const annualData = computeAnnualData(monthNums);
+  const monthData = computeMonthlyData(m);
+  const titleScope = mode === 'anual' ? 'Anual 2026' : `${months[mi]} 2026`;
+
+  const donutColors = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#f97316','#84cc16'];
+  const paintDonut = (rows, total, valField) => {
+    let pctAcc = 0;
+    const out = rows.map((row, idx) => {
+      const val = row[valField];
+      const pct = total ? (val / total) * 100 : 0;
+      const startPct = pctAcc;
+      const endPct = idx === rows.length - 1 ? 100 : Math.min(100, pctAcc + pct);
+      pctAcc = endPct;
+      return {...row, pct, color: donutColors[idx % donutColors.length], startPct, endPct};
+    });
+    const gradient = out.length
+      ? `conic-gradient(${out.map(r=>`${r.color} ${r.startPct}% ${r.endPct}%`).join(',')})`
+      : 'conic-gradient(#e2e8f0 0% 100%)';
+    return {rows: out, gradient};
+  };
+
+  const tabsHtml = `
+    <div style="display:flex;gap:8px;overflow-x:auto;white-space:nowrap;margin:0 0 12px">
+      <button onclick="changeAnalyticsTab('mensal')" style="border:1px solid ${mode==='mensal'?'#2563eb':'#cbd5e1'};background:${mode==='mensal'?'#dbeafe':'#f1f5f9'};color:${mode==='mensal'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">Mensal</button>
+      <button onclick="changeAnalyticsTab('anual')" style="border:1px solid ${mode==='anual'?'#2563eb':'#cbd5e1'};background:${mode==='anual'?'#dbeafe':'#f1f5f9'};color:${mode==='anual'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">Anual</button>
+    </div>
+  `;
+  const getPctColor = (pctRaw) => pctRaw > 100 ? '#dc2626' : pctRaw > 80 ? '#f59e0b' : '#3b82f6';
+
+  if (mode === 'anual') {
+    const donutPack = paintDonut(annualData.donutRows, annualData.mergedTotal, 'donut');
+    const monthGuides = monthNums.map((mm, idx) => ({
+      month: months[idx],
+      pct: ((idx + 1) / monthNums.length) * 100,
+      active: mm === m
+    }));
+    let annualIncomePlanned = 0;
+    let annualIncomeCurrent = 0;
+    monthNums.forEach(mm => {
+      const monthInc = getMonthIncomes(mm);
+      if (monthInc.length > 0) {
+        annualIncomePlanned += monthInc.reduce((s, inc) => s + getIncomeValue(inc), 0);
+        annualIncomeCurrent += monthInc.reduce((s, inc) => s + (inc.received ? getIncomeValue(inc) : 0), 0);
+      } else {
+        annualIncomePlanned += (GAB + GABI * gc[mm] + (extraIncome[mm] || 0));
+      }
+    });
+    const annualIncomePctRaw = annualIncomePlanned > 0 ? (annualIncomeCurrent / annualIncomePlanned) * 100 : 0;
+    const annualIncomePct = Math.min(annualIncomePctRaw, 100);
+    const annualIncomeColor = getPctColor(annualIncomePctRaw);
+
+    const fixedSubRows = getFixedCategories()
+      .map(fc => {
+        let planned = 0;
+        let current = 0;
+        monthNums.forEach(mm => {
+          getAllFixed()
+            .filter(f => (f.cat || 'casa') === fc.id)
+            .forEach(f => {
+              const base = getFixedBaseValue(mm, f);
+              if (base <= 0) return;
+              planned += base;
+              if (isPaid(mm, f.id)) current += getActual(mm, f.id, base);
+            });
+        });
+        return {id: fc.id, label: fc.name, planned, current};
+      })
+      .filter(r => r.planned > 0 || r.current > 0)
+      .sort((a,b)=>Math.max(b.current,b.planned)-Math.max(a.current,a.planned));
+
+    const varSubRows = getCategories()
+      .map(c => {
+        let planned = 0;
+        let current = 0;
+        monthNums.forEach(mm => {
+          const budget = getCatBudget(c, mm);
+          const spent = catSpent(mm, c.id);
+          current += spent;
+          planned += budget > 0 ? budget : spent;
+        });
+        return {id: c.id, label: c.name, planned, current, hasCap: (c.budget || 0) > 0};
+      })
+      .filter(r => r.planned > 0 || r.current > 0 || r.id === 'casamento');
+    const controllableIds = varSubRows.filter(r=>r.hasCap).map(r=>r.id);
+    const noCapIds = varSubRows.filter(r=>!r.hasCap).map(r=>r.id);
+    const preferredControlOrder = ['alimentacao','eventos','extras','educacao','gasolina_v','limpeza','conforto','formula_v'];
+    const orderedControl = [
+      ...preferredControlOrder.filter(id => controllableIds.includes(id)),
+      ...controllableIds.filter(id => !preferredControlOrder.includes(id))
+    ];
+    const preferredNoCapOrder = ['viagem_eua','cartao_emprestado','conforto_2025','casamento'];
+    const orderedNoCap = [
+      ...preferredNoCapOrder.filter(id => noCapIds.includes(id)),
+      ...noCapIds.filter(id => !preferredNoCapOrder.includes(id))
+    ];
+    const varSubRowsSorted = [...orderedControl, ...orderedNoCap]
+      .map(id => varSubRows.find(r => r.id === id))
+      .filter(Boolean);
+    return `
+      <h3 style="color:#1e293b;margin:0 0 16px">📈 Analytics — ${titleScope}</h3>
+      ${tabsHtml}
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Recebimentos anuais (Meta 100% x Recebido)</div>
+        <div style="margin-bottom:2px;display:flex;justify-content:space-between;font-size:11px;color:#475569">
+          <span>💵 Recebimentos</span>
+          <strong>${Math.round(annualIncomePctRaw)}% · R$ ${fmt(annualIncomeCurrent)} / R$ ${fmt(annualIncomePlanned)}</strong>
+        </div>
+        <div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;position:relative">
+          <div style="height:10px;background:${annualIncomeColor};width:${annualIncomePct}%"></div>
+          ${monthGuides.map(g=>`<div title="${g.month}" style="position:absolute;left:${g.pct}%;top:0;transform:translateX(-1px);width:2px;height:10px;background:${g.active?'#0f172a':'#475569'};opacity:${g.active?'.9':'.35'}"></div>`).join('')}
+        </div>
+        <div style="position:relative;height:12px;margin-top:4px">
+          ${monthGuides.map(g=>`<span style="position:absolute;left:${g.pct}%;transform:translateX(-50%);font-size:9px;color:${g.active?'#0f172a':'#64748b'};font-weight:${g.active?'700':'500'}">${g.month}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:12px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
+        <div style="display:flex;justify-content:center;align-items:center">
+          <div role="img" aria-label="Donut integrado de gastos" style="width:180px;height:180px;border-radius:50%;background:${donutPack.gradient};display:flex;align-items:center;justify-content:center">
+            <div style="width:116px;height:116px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:10px;font-weight:600;color:#64748b">Fixas + Variáveis</div>
+              <div style="font-size:12px;font-weight:800;color:#1e293b">R$ ${fmt(annualData.mergedTotal)}</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:100%;display:grid;grid-template-columns:1fr;gap:6px">
+          ${donutPack.rows.map(r=>{
+    const detailKey = `analytics-donut-${r.id}`;
+            const isOpen = !!state.analyticsDetails[detailKey];
+            return `<div style="border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;background:#f8fafc">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span ondblclick="openAnalyticsCategoryEntries('parent','${r.id}')" title="Duplo clique para ver lançamentos" style="display:flex;align-items:center;gap:6px;color:#334155;font-size:11px;font-weight:600;cursor:pointer"><span style="width:9px;height:9px;border-radius:999px;background:${r.color};display:inline-block"></span>${r.label}<button onclick="toggleAnalyticsDetails('${detailKey}')" title="Subcategorias" style="font-size:11px;line-height:1;padding:2px 6px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">${isOpen?'▾':'▸'}</button></span>
+                <span style="font-size:11px;color:#475569;font-weight:700">${Math.round(r.pct)}% · R$ ${fmt(r.donut)}</span>
+              </div>
+              ${isOpen ? buildParentDetailHtml(r) : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Subcategorias fixas (Meta 100% x Pago)</div>
+        ${fixedSubRows.map((r)=>{
+          const pctRaw = r.planned > 0 ? (r.current / r.planned) * 100 : 0;
+          const pct = Math.min(pctRaw, 100);
+          const color = getPctColor(pctRaw);
+          return `<div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-bottom:2px">
+              <span ondblclick="openAnalyticsCategoryEntries('fixed','${r.id}')" title="Duplo clique para ver lançamentos" style="cursor:pointer">${r.label}</span>
+              <strong>${Math.round(pctRaw)}% · R$ ${fmt(r.current)} / R$ ${fmt(r.planned)}</strong>
+            </div>
+            <div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;position:relative">
+              <div style="height:10px;background:${color};width:${pct}%"></div>
+              ${monthGuides.map(g=>`<div title="${g.month}" style="position:absolute;left:${g.pct}%;top:0;transform:translateX(-1px);width:2px;height:10px;background:${g.active?'#0f172a':'#64748b'};opacity:${g.active?'.9':'.45'}"></div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="margin-top:10px;padding-top:6px;border-top:1px dashed #e2e8f0">
+        <div style="height:10px;background:#f8fafc;border-radius:999px;overflow:hidden;position:relative">
+          ${monthGuides.map(g=>`<div title="${g.month}" style="position:absolute;left:${g.pct}%;top:0;transform:translateX(-1px);width:2px;height:10px;background:${g.active?'#0f172a':'#64748b'};opacity:${g.active?'.9':'.45'}"></div>`).join('')}
+        </div>
+        <div style="position:relative;height:12px;margin-top:4px">
+          ${monthGuides.map(g=>`<span style="position:absolute;left:${g.pct}%;transform:translateX(-50%);font-size:9px;color:${g.active?'#0f172a':'#64748b'};font-weight:${g.active?'700':'500'}">${g.month}</span>`).join('')}
+        </div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Subcategorias variáveis (Meta 100% x Lançado)</div>
+        ${varSubRowsSorted.map((r)=>{
+          const pctRaw = r.planned > 0 ? (r.current / r.planned) * 100 : 0;
+          const pct = Math.min(pctRaw, 100);
+          const color = getPctColor(pctRaw);
+          return `<div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-bottom:2px">
+              <span ondblclick="openAnalyticsCategoryEntries('var','${r.id}')" title="Duplo clique para ver lançamentos" style="cursor:pointer">${r.label}</span>
+              <strong>${Math.round(pctRaw)}% · R$ ${fmt(r.current)} / R$ ${fmt(r.planned)}</strong>
+            </div>
+            <div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;position:relative">
+              <div style="height:10px;background:${color};width:${pct}%"></div>
+              ${monthGuides.map(g=>`<div title="${g.month}" style="position:absolute;left:${g.pct}%;top:0;transform:translateX(-1px);width:2px;height:10px;background:${g.active?'#0f172a':'#64748b'};opacity:${g.active?'.9':'.45'}"></div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="margin-top:10px;padding-top:6px;border-top:1px dashed #e2e8f0">
+        <div style="height:10px;background:#f8fafc;border-radius:999px;overflow:hidden;position:relative">
+          ${monthGuides.map(g=>`<div title="${g.month}" style="position:absolute;left:${g.pct}%;top:0;transform:translateX(-1px);width:2px;height:10px;background:${g.active?'#0f172a':'#64748b'};opacity:${g.active?'.9':'.45'}"></div>`).join('')}
+        </div>
+        <div style="position:relative;height:12px;margin-top:4px">
+          ${monthGuides.map(g=>`<span style="position:absolute;left:${g.pct}%;transform:translateX(-50%);font-size:9px;color:${g.active?'#0f172a':'#64748b'};font-weight:${g.active?'700':'500'}">${g.month}</span>`).join('')}
+        </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const monthDonut = paintDonut(monthData.rows, monthData.total, 'val');
+  const fixedCatRows = getFixedCategories()
+    .map(fc => {
+      const planned = getAllFixed()
+        .filter(f => (f.cat || 'casa') === fc.id)
+        .reduce((s, f) => s + getFixedBaseValue(m, f), 0);
+      const paid = getAllFixed()
+        .filter(f => (f.cat || 'casa') === fc.id)
+        .reduce((s, f) => {
+          const base = getFixedBaseValue(m, f);
+          if (base <= 0) return s;
+          return s + (isPaid(m, f.id) ? getActual(m, f.id, base) : 0);
+        }, 0);
+      return {...fc, planned, paid};
+    })
+    .filter(r => r.planned > 0)
+    .sort((a,b)=>b.planned-a.planned);
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">📈 Analytics — ${titleScope}</h3>
+    ${tabsHtml}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px"><strong style="color:#1e293b;font-size:12px">Controláveis</strong></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:16px">
+        ${controllable.map(cat=>{
+          const budget = getCatBudget(cat,m);
+          const spent = catSpent(m, cat.id);
+          const remain = budget - spent;
+          const pct = Math.min((spent/budget)*100, 100);
+          const pctRaw = budget > 0 ? (spent / budget) * 100 : 0;
+          const pctLabel = `${Math.round(pctRaw)}%`;
+          const over = spent > budget;
+          const closed = !!state.varClosed[`${m}-${cat.id}`];
+          const isOpen = !!state.openCatDetails[cat.id];
+          const catDesc = cat.desc || '';
+          return `<div class="budget-card ${over?'over':''}">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center"><span ondblclick="openAnalyticsCategoryEntries('var','${cat.id}')" title="Duplo clique para ver lançamentos" style="font-weight:700;font-size:12px;cursor:pointer">${cat.name}</span><span style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:#64748b">R$ ${fmt(budget)}/mês</span><button onclick="toggleCatDetails('${cat.id}')" title="Abrir detalhes" style="font-size:11px;line-height:1;padding:2px 6px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">${isOpen?'▾':'▸'}</button></span></div>
+            ${isOpen?`<div style="font-size:10px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-bottom:6px">${catDesc || 'Sem descrição.'}</div>`:''}
+            <div style="background:#f1f5f9;border-radius:6px;height:10px;margin-bottom:6px;overflow:hidden"><div style="background:${over?'#dc2626':pct>75?'#f59e0b':'#22c55e'};height:10px;border-radius:6px;width:${pct}%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#64748b">Gasto: <strong style="color:#334155">R$ ${fmt(spent)}</strong></span><span style="color:${over?'#dc2626':'#16a34a'};font-weight:700">${over?`Estourou R$ ${fmt(-remain)}`:`Resta R$ ${fmt(remain)}`}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="font-size:10px;font-weight:700;color:${over?'#dc2626':'#475569'}">${over?`💥 ${pctLabel}`:pctLabel}</span><button onclick="toggleVarClosed(${m},'${cat.id}')" title="${closed?'Concluído':'Marcar concluído'}" style="font-size:11px;line-height:1;padding:3px 6px;border-radius:6px;border:1px solid ${closed?'#16a34a':'#d1d5db'};background:${closed?'#dcfce7':'#fff'};color:${closed?'#166534':'#475569'};cursor:pointer">${closed?'✔':'✓'}</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px"><strong style="color:#64748b;font-size:12px">Passado (sem cap)</strong></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:6px">
+        ${legacy.map(cat=>{
+          const spent = catSpent(m, cat.id);
+          const isOpen = !!state.openCatDetails[cat.id];
+          const catDesc = cat.desc || '';
+          return `<div class="budget-card"><div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center"><span ondblclick="openAnalyticsCategoryEntries('var','${cat.id}')" title="Duplo clique para ver lançamentos" style="font-weight:700;font-size:12px;cursor:pointer">${cat.name}</span><span style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:#94a3b8">Sem cap</span><button onclick="toggleCatDetails('${cat.id}')" title="Abrir detalhes" style="font-size:11px;line-height:1;padding:2px 6px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;color:#475569">${isOpen?'▾':'▸'}</button></span></div>${isOpen?`<div style="font-size:10px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-bottom:6px">${catDesc || 'Sem descrição.'}</div>`:''}<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#64748b">Gasto: <strong style="color:#334155">R$ ${fmt(spent)}</strong></span><span style="color:#94a3b8;font-weight:700">—</span></div></div>`;
+        }).join('')}
+      </div>
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Categorias de contas fixas (% pago do previsto no mês)</div>
+      ${fixedCatRows.map((r)=>{
+        const pct = r.planned > 0 ? Math.min((r.paid / r.planned) * 100, 100) : 0;
+        const color = '#3b82f6';
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-bottom:2px">
+            <span ondblclick="openAnalyticsCategoryEntries('fixed','${r.id}')" title="Duplo clique para ver lançamentos" style="display:flex;align-items:center;gap:6px;cursor:pointer">${r.name}</span>
+            <strong>${Math.round(pct)}% · R$ ${fmt(r.paid)} / R$ ${fmt(r.planned)}</strong>
+          </div>
+          <div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden"><div style="height:10px;background:${color};width:${pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:12px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
+      <div style="display:flex;justify-content:center;align-items:center">
+        <div role="img" aria-label="Donut integrado de gastos mensais" style="width:180px;height:180px;border-radius:50%;background:${monthDonut.gradient};display:flex;align-items:center;justify-content:center">
+          <div style="width:116px;height:116px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-size:10px;font-weight:600;color:#64748b">Lançado + Pago</div>
+            <div style="font-size:12px;font-weight:800;color:#1e293b">R$ ${fmt(monthData.total)}</div>
+          </div>
+        </div>
+      </div>
+      <div style="width:100%;display:grid;grid-template-columns:1fr;gap:6px">
+        ${monthDonut.rows.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;background:#f8fafc"><span ondblclick="openAnalyticsCategoryEntries('parent','${r.id}')" title="Duplo clique para ver lançamentos" style="display:flex;align-items:center;gap:6px;color:#334155;font-size:11px;font-weight:600;cursor:pointer"><span style="width:9px;height:9px;border-radius:999px;background:${r.color};display:inline-block"></span>${r.label}</span><span style="font-size:11px;color:#475569;font-weight:700">${Math.round(r.pct)}% · R$ ${fmt(r.val)}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ==================== FIXAS ====================
+function renderFixas() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const consMonthly = consM[m] || 0;
+  const weeklyItems = getWeeklyConsMonthItems(m);
+  const consWeeklyBase = getWeeklyConsMonthBase(m);
+  const consWeeklyPaid = getWeeklyConsMonthPaid(m);
+  const consMonthlyPaid = isConsPaid(m, 'm') ? consMonthly : 0;
+  const consBase = consMonthly + consWeeklyBase;
+  const consPaid = consMonthlyPaid + consWeeklyPaid;
+  const pc = fixedPaidCount(m), pt = fixedPaidTotal(m) + consPaid, ta = fixedTotalActual(m) + consBase;
+  const tb = getFixedBaseTotal(m) + consBase;
+  const allFixed = getAllFixed();
+  const activeFixed = allFixed
+    .filter(f=>getFixedBaseValue(m,f)>0)
+    .sort((a,b)=>{
+      const da = toDay(a.day);
+      const db = toDay(b.day);
+      if (da !== db) return da - db;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR');
+    });
+  const fixedPaidCountActive = activeFixed.filter(f=>isPaid(m,f.id)).length;
+  const consCount = (consMonthly>0?1:0) + weeklyItems.length;
+  const consCountPaid = (consMonthlyPaid>0?1:0) + weeklyItems.filter(w=>isWeeklyConsPaid(w.id)).length;
+  const pcActive = fixedPaidCountActive + consCountPaid;
+  const totalActiveCount = activeFixed.length + consCount;
+  const pct = totalActiveCount ? (pcActive / totalActiveCount) * 100 : 0;
+  
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">✅ Contas Fixas — ${months[mi]} 2026</h3>
+    <div class="grid-4">
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:10px;color:#3b82f6;font-weight:600">PAGAS</div>
+        <div style="font-size:22px;font-weight:800;color:#1d4ed8">${pcActive}/${totalActiveCount}</div>
+      </div>
+      <div class="stat-card" style="background:#f0fdf4">
+        <div style="font-size:10px;color:#16a34a;font-weight:600">VALOR PAGO</div>
+        <div style="font-size:16px;font-weight:700;color:#16a34a">R$ ${fmt(pt)}</div>
+      </div>
+      <div class="stat-card" style="background:#fef2f2">
+        <div style="font-size:10px;color:#dc2626;font-weight:600">FALTA PAGAR</div>
+        <div style="font-size:16px;font-weight:700;color:#dc2626">R$ ${fmt(tb-pt)}</div>
+      </div>
+      <div class="stat-card" style="background:#f8fafc">
+        <div style="font-size:10px;color:#64748b;font-weight:600">TOTAL MÊS</div>
+        <div style="font-size:16px;font-weight:700;color:#334155">R$ ${fmt(ta)}</div>
+        ${ta!==tb?`<div style="font-size:10px;color:${ta>tb?'#dc2626':'#16a34a'};margin-top:2px">${ta>tb?'+':''}R$ ${fmt(ta-tb)} vs base</div>`:''}
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:center;width:40px">Pago</th>
+          <th style="padding:8px 10px;text-align:left">Conta</th>
+          <th style="padding:8px 10px;text-align:left">Dia</th>
+          <th style="padding:8px 10px;text-align:left">Categoria</th>
+          <th style="padding:8px 10px;text-align:left">Método</th>
+          <th style="padding:8px 10px;text-align:right">Valor Real</th>
+          <th style="padding:8px 10px;text-align:center;width:30px">✏️</th>
+        </tr></thead>
+        <tbody>
+          ${activeFixed.map((f,i)=>{
+            const paid = isPaid(m, f.id);
+            const base = getFixedBaseValue(m, f);
+            const actual = getActual(m, f.id, base);
+            const diff = actual - base;
+            return `
+              <tr style="background:${paid?'#f0fdf4':i%2===0?'#fff':'#f8fafc'};opacity:${paid?0.75:1}">
+                <td style="padding:7px 10px;text-align:center">
+                  <input type="checkbox" ${paid?'checked':''} onchange="togglePaid(${m},'${f.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+                </td>
+                <td style="padding:7px 10px;font-weight:600;text-decoration:${paid?'line-through':'none'};color:${paid?'#94a3b8':'#1e293b'}">${f.name}</td>
+                <td style="padding:7px 10px">${toDay(f.day)}</td>
+                <td style="padding:7px 10px">${getFixedCatLabel(f.cat || 'casa')}</td>
+                <td style="padding:7px 10px">${getPaymentMethodLabel(f)}</td>
+                <td style="padding:7px 10px;text-align:right">
+                  <span class="edit-val" style="color:${diff!==0?'#1d4ed8':'#334155'}" onclick="openFixedModal(${m},'${f.id}')">
+                    R$ ${fmt(actual)}
+                    ${diff!==0?`<span style="font-size:9px;margin-left:4px;color:${diff>0?'#dc2626':'#16a34a'}">(${diff>0?'+':''}${fmt(diff)})</span>`:''}
+                  </span>
+                </td>
+                <td style="padding:7px 10px;text-align:center"><button onclick="openFixedModal(${m},'${f.id}')" style="border:none;background:none;cursor:pointer;font-size:14px">✏️</button></td>
+              </tr>`;
+          }).join('')}
+          ${consMonthly>0?`
+            <tr style="background:#fff7ed">
+              <td style="padding:7px 10px;text-align:center">
+                <input type="checkbox" ${isConsPaid(m,'m')?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+              </td>
+              <td style="padding:7px 10px;font-weight:600;color:#9a3412">Consórcio Mensal</td>
+              <td style="padding:7px 10px">1</td>
+              <td style="padding:7px 10px">🏦 Consórcios</td>
+              <td style="padding:7px 10px">💵</td>
+              <td style="padding:7px 10px;text-align:right;color:#9a3412">R$ ${fmt(consMonthly)}</td>
+              <td></td>
+            </tr>
+          `:''}
+          ${weeklyItems.map((w,i)=>`
+            <tr style="background:${i%2===0?'#faf5ff':'#f5f3ff'}">
+              <td style="padding:7px 10px;text-align:center">
+                <input type="checkbox" ${isWeeklyConsPaid(w.id)?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+              </td>
+              <td style="padding:7px 10px;font-weight:600;color:#6b21a8">Consórcio Semanal ${w.label}</td>
+              <td style="padding:7px 10px">${parseInt((w.label||'').split('/')[0],10) || 1}</td>
+              <td style="padding:7px 10px">🏦 Consórcios</td>
+              <td style="padding:7px 10px">💵</td>
+              <td style="padding:7px 10px;text-align:right;color:#6b21a8">R$ ${fmt(w.amount)}</td>
+              <td></td>
+            </tr>
+          `).join('')}
+        </tbody>
+        <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+          <td></td><td style="padding:8px 10px">TOTAL</td><td></td><td></td><td></td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(ta)}</td>
+          <td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    ${!state.showFixedForm?`
+      <button class="btn-dashed" style="margin-top:12px" onclick="toggleFixedForm()">+ Adicionar Conta Fixa</button>
+    `:`
+      <div class="form-card" style="margin-top:12px">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">NOME DA CONTA</label>
+            <input placeholder="Ex: Seguro carro" value="${state.newFixed.name}" oninput="updateNewFixed('name',this.value)"></div>
+          <div><label class="form-label">VALOR BASE (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newFixed.val}" oninput="updateNewFixed('val',this.value)"></div>
+          <div><label class="form-label">DIA</label>
+            <input type="number" min="1" max="31" placeholder="1-31" value="${state.newFixed.day||''}" oninput="updateNewFixed('day',this.value)"></div>
+          <div><label class="form-label">CATEGORIA</label>
+            <select onchange="updateNewFixed('cat',this.value)">
+              ${getFixedCategories().map(c=>`<option value="${c.id}" ${state.newFixed.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+            </select></div>
+          <div><label class="form-label">PAGAMENTO</label>
+            <select onchange="updateNewFixed('payment',this.value)">
+              <option value="dinheiro" ${state.newFixed.payment==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+              <option value="cartao_nubank" ${state.newFixed.payment==='cartao_nubank'?'selected':''}>💳 🟪</option>
+              <option value="cartao_bradesco" ${state.newFixed.payment==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+            </select></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addFixed()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleFixedForm()">✕</button>
+          </div>
+        </div>
+      </div>
+    `}
+    <div class="alert alert-info">
+      <strong>💡</strong> Contas fixas em 💳 entram no Saldo Real só quando a fatura do cartão for marcada como paga.
+    </div>
+    <div class="alert alert-info">
+      <strong>🏦 Consórcios em Fixas:</strong> mensal e semanal deste mês já estão incluídos no total de Fixas e no Resumo.
+    </div>
+  `;
+}
+
+function renderHistorico() {
+  const items = state.activityHistory || [];
+  const fmtDt = (ts) => {
+    const d = new Date(ts || Date.now());
+    return d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+  };
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">🕒 Histórico de Atividades</h3>
+    <div class="alert alert-info" style="margin-bottom:12px">Atualiza automaticamente com os lançamentos e ações do app.</div>
+    ${items.length ? `
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left;width:120px">Data/Hora</th>
+            <th style="padding:8px 10px;text-align:left;width:95px">Mês</th>
+            <th style="padding:8px 10px;text-align:left">Atividade</th>
+          </tr></thead>
+          <tbody>
+            ${items.map((it, i)=>`
+              <tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+                <td style="padding:7px 10px;color:#475569">${fmtDt(it.ts)}</td>
+                <td style="padding:7px 10px;color:#334155">${fullMonthName(it.month)}</td>
+                <td style="padding:7px 10px;color:#0f172a">${it.message}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : `<div style="text-align:center;padding:28px;color:#94a3b8;font-size:12px">Sem atividades registradas ainda.</div>`}
+  `;
+}
+
+// ==================== SETTINGS ====================
+function renderSettings() {
+  const vCats = getCategories();
+  const fCats = getFixedCategories();
+  const parentDefs = getAnalyticsParentDefs();
+  const customIds = new Set((state.customVarCats || []).map(c => c.id));
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">⚙️ Settings</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button onclick="exportData()" style="font-size:11px;padding:6px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;color:#475569">📥 Exportar Backup</button>
+      <button onclick="document.getElementById('importFile').click()" style="font-size:11px;padding:6px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;color:#475569">📤 Importar Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Categorias Variáveis (nome, cap e descrição)</div>
+      <div style="overflow-x:auto">
+        <table style="font-size:12px;min-width:740px">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">ID</th>
+            <th style="padding:8px 10px;text-align:left">Nome</th>
+            <th style="padding:8px 10px;text-align:right">Cap (R$)</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:center;width:44px"></th>
+          </tr></thead>
+          <tbody>
+            ${vCats.map((c,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px;color:#64748b">${c.id}</td>
+              <td style="padding:7px 10px"><input value="${c.name || ''}" onchange="updateSettingVarCat('${c.id}','name',this.value)"></td>
+              <td style="padding:7px 10px;text-align:right"><input type="number" value="${getCatBudget(c, state.trackMonth)}" onchange="updateSettingVarCat('${c.id}','budget',this.value)" style="text-align:right;max-width:96px;margin-left:auto"></td>
+              <td style="padding:7px 10px"><input value="${c.desc || ''}" onchange="updateSettingVarCat('${c.id}','desc',this.value)"></td>
+              <td style="padding:7px 10px;text-align:center">${customIds.has(c.id)?`<button onclick="removeCustomVarCategory('${c.id}')" style="border:none;background:none;cursor:pointer">🗑</button>`:''}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1">
+        <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px">+ Nova Categoria Variável</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">Nome</label><input value="${state.newVarCat.name || ''}" oninput="updateNewVarCat('name',this.value)" placeholder="Ex: Pets"></div>
+          <div><label class="form-label">Cap (0 = sem cap)</label><input type="number" value="${state.newVarCat.budget || ''}" oninput="updateNewVarCat('budget',this.value)" placeholder="0,00"></div>
+          <div><label class="form-label">Descrição</label><input value="${state.newVarCat.desc || ''}" oninput="updateNewVarCat('desc',this.value)" placeholder="Opcional"></div>
+          <div style="display:flex;gap:4px"><button class="btn btn-add" onclick="addVarCategoryFromSettings()">Adicionar</button></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Categorias de Fixas (nome)</div>
+      <div style="overflow-x:auto">
+        <table style="font-size:12px;min-width:460px">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">ID</th>
+            <th style="padding:8px 10px;text-align:left">Nome</th>
+          </tr></thead>
+          <tbody>
+            ${fCats.map((c,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px;color:#64748b">${c.id}</td>
+              <td style="padding:7px 10px"><input value="${c.name || ''}" onchange="updateSettingFixedCat('${c.id}',this.value)"></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
+      <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:8px">Categorias Mãe (Analytics Donut)</div>
+      <div style="overflow-x:auto">
+        <table style="font-size:12px;min-width:860px">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">ID</th>
+            <th style="padding:8px 10px;text-align:left">Nome</th>
+            <th style="padding:8px 10px;text-align:left">Categorias Fixas (ids separados por vírgula)</th>
+            <th style="padding:8px 10px;text-align:left">Categorias Variáveis (ids separados por vírgula)</th>
+          </tr></thead>
+          <tbody>
+            ${parentDefs.map((p,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px;color:#64748b">${p.id}</td>
+              <td style="padding:7px 10px"><input value="${p.label || ''}" onchange="updateSettingParent('${p.id}','label',this.value)"></td>
+              <td style="padding:7px 10px"><input value="${(p.fixedCats || []).join(', ')}" onchange="updateSettingParent('${p.id}','fixedCats',this.value)"></td>
+              <td style="padding:7px 10px"><input value="${(p.varCats || []).join(', ')}" onchange="updateSettingParent('${p.id}','varCats',this.value)"></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:#64748b;margin-top:8px;line-height:1.4">
+        IDs Fixas: ${fCats.map(c=>c.id).join(', ')}<br>
+        IDs Variáveis: ${vCats.map(c=>c.id).join(', ')}
+      </div>
+    </div>
+  `;
+}
+
+// ==================== RECEITAS ====================
+function renderReceitas() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const inc = getMonthIncomes(m);
+  const totLancado = inc.reduce((s,i)=>s+getIncomeValue(i),0);
+  const totRec = inc.filter(i=>i.received).reduce((s,i)=>s+getIncomeValue(i),0);
+  const totPend = Math.max(0, totLancado - totRec);
+  
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">💵 Receitas — ${months[mi]} 2026</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px">
+      <div class="stat-card" style="background:#eff6ff">
+        <div style="font-size:10px;color:#3b82f6;font-weight:600">TOTAL LANÇADO</div>
+        <div style="font-size:20px;font-weight:800;color:#1d4ed8">R$ ${fmt(totLancado)}</div>
+      </div>
+      <div class="stat-card" style="background:#f0fdf4">
+        <div style="font-size:10px;color:#16a34a;font-weight:600">RECEBIDO ✓</div>
+        <div style="font-size:20px;font-weight:800;color:#16a34a">R$ ${fmt(totRec)}</div>
+      </div>
+      <div class="stat-card" style="background:${totPend>0?'#fef2f2':'#f0fdf4'}">
+        <div style="font-size:10px;color:#64748b;font-weight:600">PENDENTE</div>
+        <div style="font-size:20px;font-weight:800;color:${totPend>0?'#dc2626':'#16a34a'}">R$ ${fmt(totPend)}</div>
+      </div>
+    </div>
+    ${!state.showIncomeForm?`
+      <button class="btn-dashed" onclick="toggleIncomeForm()">+ Adicionar Receita</button>
+    `:`
+        <div class="form-card">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end">
+          <div><label class="form-label">DESCRIÇÃO</label>
+            <input placeholder="Ex: Gabriella - Avoca" value="${state.newIncome.desc}" oninput="updateNewIncome('desc',this.value)"></div>
+          <div><label class="form-label">VALOR (R$)</label>
+            <input type="number" placeholder="0,00" value="${state.newIncome.val}" oninput="updateNewIncome('val',this.value)"></div>
+          <div><label class="form-label">DIA</label>
+            <input type="number" min="1" max="31" placeholder="1-31" value="${state.newIncome.day||''}" oninput="updateNewIncome('day',this.value)"></div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-add" onclick="addIncome()">✓</button>
+            <button class="btn btn-cancel" onclick="toggleIncomeForm()">✕</button>
+          </div>
+        </div>
+      </div>
+    `}
+    ${inc.length>0?`
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-top:16px">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:center;width:40px">✓</th>
+            <th style="padding:8px 10px;text-align:left">Dia</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:right">Valor</th>
+            <th style="padding:8px 10px;text-align:center;width:30px"></th>
+          </tr></thead>
+          <tbody>
+            ${inc.map((r,i)=>{
+              const val = getIncomeValue(r);
+              return `
+                <tr style="background:${r.received?'#f0fdf4':i%2===0?'#fff':'#f8fafc'}">
+                  <td style="padding:7px 10px;text-align:center">
+                    <input type="checkbox" ${r.received?'checked':''} onchange="toggleIncomeReceived(${m},${i})" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+                  </td>
+                  <td style="padding:7px 10px">${toDay(r.day)}</td>
+                  <td style="padding:7px 10px;font-weight:600;color:${r.received?'#94a3b8':'#1e293b'};text-decoration:${r.received?'line-through':'none'}">${r.desc}</td>
+                  <td style="padding:7px 10px;text-align:right">
+                    <span class="edit-val" style="color:#334155" onclick="editIncome(${m},${i},${val})">
+                      R$ ${fmt(val)}
+                    </span>
+                  </td>
+                  <td style="padding:7px 10px;text-align:center">
+                    <button onclick="removeIncome(${m},${i})" style="border:none;background:none;cursor:pointer;font-size:14px">🗑</button>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+            <td></td><td></td><td style="padding:8px 10px">TOTAL</td>
+            <td style="padding:8px 10px;text-align:right">R$ ${fmt(totLancado)}</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    `:`<div style="text-align:center;padding:32px;color:#94a3b8;font-size:12px">Nenhuma receita em ${months[mi]}. Clique em "+ Adicionar Receita".</div>`}
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>💡 Como funciona:</strong> O Resumo usa sempre o valor lançado. O ✓ recebido impacta apenas o Saldo em Conta (Real). Sem receitas lançadas, usa estimativa automática de salário.
+    </div>
+  `;
+}
+
+// ==================== VARIÁVEIS ====================
+function renderVariaveis() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const cats = getCategories();
+  const baseList = getMonthBaseExp(m);
+  const instList = getInstallmentItems(m);
+  const totalVarMes = getMonthExp(m).reduce((s,e)=>s+e.val,0);
+  const expenseRows = [
+    ...baseList.map((e, idx) => ({
+      type: 'base',
+      idx,
+      sortTs: Number.isFinite(Number(e.createdAt)) ? Number(e.createdAt) : idx,
+      item: e
+    })),
+    ...instList.map((e, idx) => ({
+      type: 'inst',
+      idx,
+      sortTs: Number.isFinite(Number(e.createdAt)) ? Number(e.createdAt) : 0,
+      item: e
+    }))
+  ].sort((a,b)=>{
+    const da = toDay(a.item.day);
+    const db = toDay(b.item.day);
+    if (db !== da) return db - da;
+    if (b.sortTs !== a.sortTs) return b.sortTs - a.sortTs;
+    return b.idx - a.idx;
+  });
+  
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">☑️ Variáveis — ${months[mi]} 2026</h3>
+    <div class="stat-card" style="background:#eff6ff;margin-bottom:10px">
+      <div style="font-size:11px;color:#64748b">Total de gastos em ${months[mi]}</div>
+      <div style="font-size:18px;font-weight:800;color:#1d4ed8">R$ ${fmt(totalVarMes)}</div>
+    </div>
+    <div style="margin:0 0 16px">
+      ${state.showForm?`
+        <div class="form-card">
+          <div style="display:flex;gap:8px;overflow-x:auto;white-space:nowrap;margin-bottom:10px">
+            <button onclick="changeVarEntryTab('single')" style="border:1px solid ${state.varEntryTab==='single'?'#2563eb':'#cbd5e1'};background:${state.varEntryTab==='single'?'#dbeafe':'#f1f5f9'};color:${state.varEntryTab==='single'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">Pagamento Único</button>
+            <button onclick="changeVarEntryTab('installment')" style="border:1px solid ${state.varEntryTab==='installment'?'#2563eb':'#cbd5e1'};background:${state.varEntryTab==='installment'?'#dbeafe':'#f1f5f9'};color:${state.varEntryTab==='installment'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">Parceladas</button>
+          </div>
+          ${state.varEntryTab==='single'?`
+            <div class="form-grid">
+              <div><label class="form-label">CATEGORIA</label>
+                <select onchange="updateNewExp('cat',this.value)">
+                  ${getCategories().map(c=>`<option value="${c.id}" ${state.newExp.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+                </select></div>
+              <div><label class="form-label">DESCRIÇÃO</label>
+                <input placeholder="Ex: Supermercado" value="${state.newExp.desc}" oninput="updateNewExp('desc',this.value)"></div>
+              <div><label class="form-label">VALOR (R$)</label>
+                <input type="number" placeholder="0,00" value="${state.newExp.val}" oninput="updateNewExp('val',this.value)"></div>
+              <div><label class="form-label">DIA</label>
+                <input type="number" min="1" max="31" placeholder="1-31" value="${state.newExp.day||''}" oninput="updateNewExp('day',this.value)"></div>
+              <div><label class="form-label">PAGAMENTO</label>
+                <select onchange="updateNewExp('payment',this.value)">
+                  <option value="dinheiro" ${state.newExp.payment==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+                  <option value="cartao_nubank" ${state.newExp.payment==='cartao_nubank'?'selected':''}>💳 🟪</option>
+                  <option value="cartao_bradesco" ${state.newExp.payment==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+                </select></div>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-add" onclick="addExpense()">✓</button>
+                <button class="btn btn-cancel" onclick="toggleForm()">✕</button>
+              </div>
+            </div>
+          `:`
+            <div class="form-grid">
+              <div><label class="form-label">CATEGORIA</label>
+                <select onchange="updateNewInst('cat',this.value)">
+                  ${getCategories().map(c=>`<option value="${c.id}" ${state.newInst.cat===c.id?'selected':''}>${c.name}</option>`).join('')}
+                </select></div>
+              <div><label class="form-label">DESCRIÇÃO</label>
+                <input placeholder="Ex: Geladeira (10x)" value="${state.newInst.name}" oninput="updateNewInst('name',this.value)"></div>
+              <div><label class="form-label">VALOR TOTAL (R$)</label>
+                <input type="number" placeholder="0,00" value="${state.newInst.total}" oninput="updateNewInst('total',this.value)"></div>
+              <div><label class="form-label">DIA</label>
+                <input type="number" min="1" max="31" placeholder="1-31" value="${state.newInst.day||''}" oninput="updateNewInst('day',this.value)"></div>
+              <div><label class="form-label">PAGAMENTO</label>
+                <select onchange="updateNewInst('payment',this.value)">
+                  <option value="dinheiro" ${state.newInst.payment==='dinheiro'?'selected':''}>💵 Dinheiro</option>
+                  <option value="cartao_nubank" ${state.newInst.payment==='cartao_nubank'?'selected':''}>💳 🟪</option>
+                  <option value="cartao_bradesco" ${state.newInst.payment==='cartao_bradesco'?'selected':''}>💳 🟥</option>
+                </select></div>
+              <div><label class="form-label">PARCELAS</label>
+                <input type="number" min="1" placeholder="Qtd" value="${state.newInst.qty}" oninput="updateNewInst('qty',this.value)"></div>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-add" onclick="addInstallment()">✓</button>
+                <button class="btn btn-cancel" onclick="toggleForm()">✕</button>
+              </div>
+              <div style="grid-column: 1 / -1; font-size:10px;color:#64748b">
+                As parcelas serão lançadas automaticamente a partir de ${months[mi]}. 
+                ${state.newInst.total && state.newInst.qty && parseFloat(state.newInst.total) > 0 && parseInt(state.newInst.qty,10) > 0 ? `Valor por parcela: <strong>R$ ${fmt(parseFloat(state.newInst.total)/parseInt(state.newInst.qty,10))}</strong>` : ''}
+              </div>
+            </div>
+          `}
+        </div>
+      `:''}
+    </div>
+    ${(baseList.length + instList.length)>0?`
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+        <table style="font-size:12px;table-layout:fixed;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 6px;text-align:left;width:40px">Dia</th>
+            <th style="padding:8px 6px;text-align:left;width:120px">Descrição</th>
+            <th style="padding:8px 6px;text-align:left;width:88px">Categoria</th>
+            <th style="padding:8px 6px;text-align:right;width:86px">Valor</th>
+            <th style="padding:8px 6px;text-align:left;width:72px">Método</th>
+            <th style="padding:8px 6px;text-align:center;width:34px"></th>
+          </tr></thead>
+          <tbody>
+            ${expenseRows.map((row,displayIdx)=>{
+              const e = row.item;
+              const bg = displayIdx%2===0?'#fff':'#f8fafc';
+              if (row.type === 'base') {
+                const cat = getCategoryById(e.cat);
+                return `<tr style="background:${bg}">
+                  <td style="padding:7px 6px">${toDay(e.day)}</td>
+                  <td style="padding:7px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${e.desc}">${e.desc}</td>
+                  <td style="padding:7px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${cat ? cat.name : e.cat}">${cat ? cat.name : e.cat}</td>
+                  <td style="padding:7px 6px;text-align:right;font-weight:600;white-space:nowrap">R$ ${fmt(e.val)}</td>
+                  <td style="padding:7px 6px;white-space:nowrap">${getPaymentMethodLabel(e)}</td>
+                  <td style="padding:7px 6px;text-align:center">
+                    <button onclick="openExpenseModal('base',${m},${row.idx})" style="border:none;background:none;cursor:pointer;font-size:14px">✏️</button>
+                  </td>
+                </tr>`;
+              }
+              const cat = getCategoryById(e.cat);
+              return `<tr style="background:${bg}">
+                <td style="padding:7px 6px">${toDay(e.day)}</td>
+                <td style="padding:7px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${e.desc}">${e.desc}</td>
+                <td style="padding:7px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${cat ? cat.name : e.cat}">${cat ? cat.name : e.cat}</td>
+                <td style="padding:7px 6px;text-align:right;font-weight:600;white-space:nowrap">R$ ${fmt(e.val)}</td>
+                <td style="padding:7px 6px;white-space:nowrap">${getPaymentMethodLabel(e)} 🔁</td>
+                <td style="padding:7px 6px;text-align:center">
+                  <button onclick="openExpenseModal('inst',${m},'${e.instId}')" style="border:none;background:none;cursor:pointer;font-size:14px">✏️</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="background:#f1f5f9;font-weight:700">
+            <td colspan="3" style="padding:8px 10px">Total em ${months[mi]}</td>
+            <td style="padding:8px 10px;text-align:right;color:#dc2626">R$ ${fmt(getMonthExp(m).reduce((s,e)=>s+e.val,0))}</td>
+            <td></td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    `:`<div style="text-align:center;padding:32px;color:#94a3b8;font-size:12px">Nenhum gasto em ${months[mi]}. Estimativa: R$ ${fmt(getVarEstimate(m))}</div>`}
+    <div class="alert alert-info" style="margin-top:12px">
+      <strong>💡</strong> Gastos registrados substituem a estimativa de R$ ${fmt(getVarEstimate(m))} no Resumo.
+    </div>
+  `;
+}
+
+// ==================== PARCELAS ====================
+function renderParcelas() {
+  const allInst = [...instDetail, ...state.customInstallments];
+  return `
+    <h3 style="color:#1e293b;margin-bottom:12px">🔄 Parcelas Futuras</h3>
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;overflow-x:auto">
+      <table style="font-size:11px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 6px;text-align:left;white-space:nowrap">Compra</th>
+          <th style="padding:8px 6px;text-align:right">R$/mês</th>
+          ${months.map(m=>`<th style="padding:8px 6px;text-align:center">${m}</th>`).join('')}
+          <th style="padding:8px 6px;width:30px"></th>
+        </tr></thead>
+        <tbody>
+          ${allInst.map((item,idx)=>{
+            const rem = normalizeInstMonths(item.rem || []);
+            return `<tr style="background:${idx%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:6px;white-space:nowrap;font-size:10px">${item.name}</td>
+              <td style="padding:6px;text-align:right;font-weight:600">${fmt(item.pm)}</td>
+              ${monthNums.map(m=>`
+                <td style="padding:6px;text-align:center">
+                  ${rem.includes(m)?`<span style="background:#fee2e2;color:#dc2626;padding:2px 5px;border-radius:4px;font-size:9px;font-weight:600">${fmt(item.pm)}</span>`:`<span style="color:#d1d5db">—</span>`}
+                </td>`).join('')}
+              <td style="padding:6px;text-align:center">${!item.fixed?`<button onclick="removeInstallment(${idx - instDetail.length})" style="border:none;background:none;cursor:pointer;font-size:12px">🗑</button>`:''}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot><tr style="background:#fef2f2;font-weight:700;color:#dc2626">
+          <td style="padding:8px 6px">TOTAL</td><td></td>
+          ${monthNums.map(m=>{const t=allInst.reduce((s,i)=>s+(normalizeInstMonths(i.rem || []).includes(m)?i.pm:0),0); return `<td style="padding:8px 6px;text-align:center;font-size:10px">${t>0?'R$ '+fmt(t):'-'}</td>`;}).join('')}
+          <td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px"><strong>💡</strong> Parcelas são contabilizadas automaticamente no Resumo. Para adicionar novas, use aba 💳 Cartão.</div>
+  `;
+}
+
+// ==================== CARTÃO ====================
+function renderCartao() {
+  const m = state.trackMonth, mi = monthNums.indexOf(m);
+  const vc = getMonthExp(m).filter(e => e.payment === 'cartao' && !e.isInst);
+  const tvc = vc.reduce((s,e)=>s+e.val,0);
+  const pm = getInstallmentItems(m).filter(e => e.payment === 'cartao');
+  const tp = pm.reduce((s,i)=>s+i.val,0);
+  const fc = getMonthFixedCardItems(m);
+  const tfc = fc.reduce((s,e)=>s+e.val,0);
+  const total = tvc + tp + tfc;
+  const totalNubank = getMonthCardTotal(m, 'nubank');
+  const totalBradesco = getMonthCardTotal(m, 'bradesco');
+  const paidNubank = isCardPaid(m, 'nubank');
+  const paidBradesco = isCardPaid(m, 'bradesco');
+  const vcNubank = vc.filter(e => (e.card || 'bradesco') === 'nubank');
+  const vcBradesco = vc.filter(e => (e.card || 'bradesco') === 'bradesco');
+  const pmNubank = pm.filter(e => (e.card || 'bradesco') === 'nubank');
+  const pmBradesco = pm.filter(e => (e.card || 'bradesco') === 'bradesco');
+  const fcNubank = fc.filter(e => (e.card || 'bradesco') === 'nubank');
+  const fcBradesco = fc.filter(e => (e.card || 'bradesco') === 'bradesco');
+  const activeCard = state.cardSubTab === 'bradesco' ? 'bradesco' : 'nubank';
+  const activeIcon = activeCard === 'nubank' ? '🟪' : '🟥';
+  const activeVars = activeCard === 'nubank' ? vcNubank : vcBradesco;
+  const activeInst = activeCard === 'nubank' ? pmNubank : pmBradesco;
+  const activeFix = activeCard === 'nubank' ? fcNubank : fcBradesco;
+  const activeTotal = activeCard === 'nubank' ? totalNubank : totalBradesco;
+  const activeFootBg = activeCard === 'nubank' ? '#fef3c7' : '#ffe4e6';
+  const activeFootColor = activeCard === 'nubank' ? '#d97706' : '#e11d48';
+  
+  return `
+    <h3 style="color:#1e293b;margin:0 0 16px">💳 Cartão — ${months[mi]} 2026</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
+      <div class="stat-card" style="background:#fee2e2">
+        <div style="font-size:10px;color:#dc2626;font-weight:600">TOTAL FATURA</div>
+        <div style="font-size:22px;font-weight:800;color:#dc2626">R$ ${fmt(total)}</div>
+      </div>
+      <div class="stat-card" style="background:#fef3c7">
+        <div style="font-size:10px;color:#d97706;font-weight:600">VARIÁVEIS</div>
+        <div style="font-size:18px;font-weight:700;color:#d97706">R$ ${fmt(tvc)}</div>
+      </div>
+      <div class="stat-card" style="background:#ffe4e6">
+        <div style="font-size:10px;color:#e11d48;font-weight:600">PARCELAS</div>
+        <div style="font-size:18px;font-weight:700;color:#e11d48">R$ ${fmt(tp)}</div>
+      </div>
+      <div class="stat-card" style="background:#ecfeff">
+        <div style="font-size:10px;color:#0e7490;font-weight:600">FIXAS NO CARTÃO</div>
+        <div style="font-size:18px;font-weight:700;color:#0e7490">R$ ${fmt(tfc)}</div>
+      </div>
+    </div>
+    ${(vc.length>0 || pm.length>0 || fc.length>0)?`
+      <div style="display:flex;gap:8px;overflow-x:auto;white-space:nowrap;margin:16px 0 8px;padding-bottom:2px">
+        <button onclick="changeCardSubTab('nubank')" style="border:1px solid ${activeCard==='nubank'?'#2563eb':'#cbd5e1'};background:${activeCard==='nubank'?'#dbeafe':'#f1f5f9'};color:${activeCard==='nubank'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">🟪 Nubank</button>
+        <button onclick="changeCardSubTab('bradesco')" style="border:1px solid ${activeCard==='bradesco'?'#2563eb':'#cbd5e1'};background:${activeCard==='bradesco'?'#dbeafe':'#f1f5f9'};color:${activeCard==='bradesco'?'#1d4ed8':'#475569'};font-weight:700;border-radius:10px;padding:8px 12px;cursor:pointer;flex:0 0 auto">🟥 Bradesco</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px">
+        <h4 style="color:#1e293b;margin:0">${activeIcon} • Venc. dia ${getCardDueDay(activeCard)}</h4>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;cursor:pointer;background:${(activeCard==='nubank'?paidNubank:paidBradesco)?'#dcfce7':'#f8fafc'};border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px">
+          <input type="checkbox" ${(activeCard==='nubank'?paidNubank:paidBradesco)?'checked':''} onchange="toggleCardPaid(${m},'${activeCard}')" style="width:18px;height:18px;cursor:pointer;accent-color:#22c55e">
+          <span>${(activeCard==='nubank'?paidNubank:paidBradesco)?'Paga':'Pendente'} • R$ ${fmt(activeTotal)}</span>
+        </label>
+      </div>
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+        <table style="font-size:12px;width:100%">
+          <thead><tr style="background:#1e293b;color:#fff">
+            <th style="padding:8px 10px;text-align:left">Tipo</th>
+            <th style="padding:8px 10px;text-align:left">Descrição</th>
+            <th style="padding:8px 10px;text-align:right">Valor</th>
+          </tr></thead>
+          <tbody>
+            ${activeFix.map((e,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Fixa</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+            ${activeVars.map((e,i)=>`<tr style="background:${(activeFix.length+i)%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Variável</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+            ${activeInst.map((e,i)=>`<tr style="background:${(activeFix.length+activeVars.length+i)%2===0?'#fff':'#f8fafc'}"><td style="padding:7px 10px;font-size:11px">Parcela</td><td style="padding:7px 10px">${e.desc}</td><td style="padding:7px 10px;text-align:right;font-weight:600">R$ ${fmt(e.val)}</td></tr>`).join('')}
+          </tbody>
+          <tfoot><tr style="background:${activeFootBg};font-weight:700"><td colspan="2" style="padding:8px 10px">Subtotal</td><td style="padding:8px 10px;text-align:right;color:${activeFootColor}">R$ ${fmt(activeTotal)}</td></tr></tfoot>
+        </table>
+      </div>
+    `:''}
+    <div class="alert alert-warning" style="margin-top:12px"><strong>💳 Fatura total:</strong> R$ ${fmt(total)}</div>
+  `;
+}
+
+// ==================== CONSÓRCIOS ====================
+function renderConsorcios() {
+  return `
+    <h3 style="color:#1e293b;margin-bottom:12px">🏦 Consórcios</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe">
+        <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px">Mensal</div>
+        <div style="font-size:11px;color:#334155;line-height:1.6">R$ 405 em fev, +R$ 5/mês, 12x<br><strong style="color:#16a34a">Recebe outubro: R$ 5.340</strong></div>
+      </div>
+      <div style="background:#fdf4ff;border-radius:10px;padding:14px;border:1px solid #e9d5ff">
+        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:8px">Semanal</div>
+        <div style="font-size:11px;color:#334155;line-height:1.6">R$ 150/sem +R$ 1,50/sem, até 10/ago<br><strong style="color:#16a34a">Recebe fevereiro: R$ 5.900</strong></div>
+      </div>
+    </div>
+    <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:left">Mês</th>
+          <th style="padding:8px 10px;text-align:right">Mensal</th>
+          <th style="padding:8px 10px;text-align:center">Pago</th>
+          <th style="padding:8px 10px;text-align:right">Semanal (prev.)</th>
+          <th style="padding:8px 10px;text-align:right">Semanal (pago)</th>
+          <th style="padding:8px 10px;text-align:right">Total</th>
+          <th style="padding:8px 10px;text-align:right">Recebimentos</th>
+        </tr></thead>
+        <tbody>
+          ${monthNums.map((m,i)=>{
+            const cm=consM[m]||0, cs=consS[m]||0, rv=m===2?5900:m===10?5340:0;
+            const csPaid=consWeeklySchedule.filter(w=>w.month===m && isWeeklyConsPaid(w.id)).reduce((s,w)=>s+w.amount,0);
+            return `<tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px;font-weight:600">${months[i]}</td>
+              <td style="padding:7px 10px;text-align:right;color:#ea580c">${fmt(cm)}</td>
+              <td style="padding:7px 10px;text-align:center">${cm>0?`<input type="checkbox" ${isConsPaid(m,'m')?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e">`:'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${cs>0?'#7c3aed':'#cbd5e1'}">${cs>0?fmt(cs):'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${csPaid>0?'#16a34a':'#cbd5e1'}">${csPaid>0?fmt(csPaid):'-'}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:700">${fmt(cm+cs)}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:${rv>0?700:400};color:${rv>0?'#16a34a':'#cbd5e1'}">${rv>0?`+R$ ${fmt(rv)}`:'-'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot><tr style="background:#1e293b;color:#fff;font-weight:700">
+          <td style="padding:8px 10px">TOTAL</td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consM).reduce((s,v)=>s+v,0))}</td>
+          <td></td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consS).reduce((s,v)=>s+v,0))}</td>
+          <td></td>
+          <td style="padding:8px 10px;text-align:right">R$ ${fmt(Object.values(consM).reduce((s,v)=>s+v,0)+Object.values(consS).reduce((s,v)=>s+v,0))}</td>
+          <td style="padding:8px 10px;text-align:right;color:#4ade80">+R$ ${fmt(11240)}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div style="margin-top:12px;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden">
+      <table style="font-size:12px">
+        <thead><tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px 10px;text-align:left">Parcela Semanal</th>
+          <th style="padding:8px 10px;text-align:right">Valor</th>
+          <th style="padding:8px 10px;text-align:center">Pago</th>
+        </tr></thead>
+        <tbody>
+          ${consWeeklySchedule.map((w,i)=>`
+            <tr style="background:${i%2===0?'#fff':'#f8fafc'}">
+              <td style="padding:7px 10px">${w.label}</td>
+              <td style="padding:7px 10px;text-align:right">${fmt(w.amount)}</td>
+              <td style="padding:7px 10px;text-align:center"><input type="checkbox" ${isWeeklyConsPaid(w.id)?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:#22c55e"></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px"><strong>💡</strong> Só parcelas marcadas como pagas entram no Saldo em Conta (Real).</div>
+  `;
+}
+
+function exportData() {
+  const payload = {
+    trackMonth: state.trackMonth,
+    analyticsTab: state.analyticsTab,
+    cardSubTab: state.cardSubTab,
+    varEntryTab: state.varEntryTab,
+    expenses: state.expenses, fixedPaid: state.fixedPaid,
+    fixedActual: state.fixedActual, fixedOverrides: state.fixedOverrides, customInstallments: state.customInstallments,
+    catOverrides: state.catOverrides,
+    customVarCats: state.customVarCats,
+    fixedCatOverrides: state.fixedCatOverrides,
+    analyticsParentOverrides: state.analyticsParentOverrides,
+    analyticsDetails: state.analyticsDetails,
+    instCatOverrides: state.instCatOverrides,
+    instOverrides: state.instOverrides,
+    customFixed: state.customFixed,
+    varClosed: state.varClosed,
+    cardPaid: state.cardPaid,
+    consPaid: state.consPaid,
+    consWeeklyPaid: state.consWeeklyPaid,
+    cardDueDay: state.cardDueDay,
+    incomes: state.incomes,
+    activityHistory: state.activityHistory,
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `budget-2026-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.expenses || d.fixedPaid || d.incomes) {
+        applyPayload(d);
+        saveData();
+        render();
+        alert('✅ Dados importados com sucesso!');
+      } else {
+        alert('❌ Arquivo inválido');
+      }
+    } catch(err) { alert('❌ Erro ao ler arquivo: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+loadData().then(() => render());
+</script>
+</body>
+</html>
