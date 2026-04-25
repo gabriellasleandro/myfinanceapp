@@ -463,22 +463,7 @@ function newInstallmentDraft() {
   return {name: "", total: "", qty: "1", cat: "alimentacao", payment: "cartao_bradesco", day: String(now.day), purchaseMonth: String(now.month), billStartMonth: String(getNextMonthNum(now.month))};
 }
 
-const instDetail=[
-  {id:"viagem_bradesco",name:"Viagem EUA - Bradesco",pm:2451.63,rem:[2],fixed:true,cat:"viagem_eua",card:"bradesco"},
-  {id:"viagem_nubank",name:"Viagem EUA - Nubank",pm:19092.73,rem:[3],fixed:true,cat:"viagem_eua",card:"nubank"},
-  {id:"casas_bahia",name:"Casas Bahia (10x)",pm:339.05,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"amazon_frigela",name:"Amazon Frigela (10x)",pm:261.80,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"amazon_webcont",name:"Amazon Webcont (10x)",pm:238.90,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"magalu",name:"Magalu (10x)",pm:200.77,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"mlp_magalu",name:"MLP Magalu (10x)",pm:161.75,rem:[2,3,4],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"american_airlines",name:"American Airlines (6x)",pm:1682.14,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
-  {id:"mentoria_pratica",name:"Mentoria Prática (4x)",pm:222.72,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
-  {id:"leonardo_faria",name:"Leonardo de Faria (5x)",pm:1010.00,rem:[2,3,4,5],fixed:true,cat:"viagem_eua",card:"bradesco"},
-  {id:"shopee_dulcecortina",name:"Shopee DulceCortina (10x)",pm:179.86,rem:[2,3],fixed:true,cat:"conforto_2025",card:"bradesco"},
-  {id:"pro_seculo",name:"PRO Seculo (2x)",pm:375.00,rem:[2,3],fixed:true,cat:"educacao",card:"bradesco"},
-  {id:"azulvia",name:"Azulvia (4x)",pm:634.25,rem:[2,3,4],fixed:true,cat:"cartao_emprestado",card:"bradesco"},
-  {id:"rentcars",name:"Rentcars (3x)",pm:694.13,rem:[2,3],fixed:true,cat:"viagem_eua",card:"bradesco"},
-];
+const instDetail=[];
 
 let state = {
   tab: "resumo", trackMonth: getCurrentMonthNum(),
