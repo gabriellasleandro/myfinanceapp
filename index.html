@@ -3933,7 +3933,7 @@ function renderFixas() {
                 <td style="padding:7px 10px;text-align:center">
                   <input type="checkbox" ${paid?'checked':''} onchange="togglePaidPrompt(this.checked, ${m}, '${f.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)">
                 </td>
-                <td style="padding:7px 10px;font-weight:600;text-decoration:${paid?'line-through':'none'};color:${paid?'#94a3b8':'#1e293b'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.name}">${f.name}</td>
+                <td style="padding:7px 10px;font-weight:600;text-decoration:${paid?'line-through':'none'};color:${paid?'var(--text3)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.name}">${f.name}</td>
                 <td style="padding:7px 10px;white-space:nowrap">${toDay(f.day)}</td>
                 <td style="padding:7px 10px;text-align:center;white-space:nowrap" title="${getFixedCatLabel(f.cat || 'casa')}">${getCategoryEmoji(getFixedCatLabel(f.cat || 'casa'))}</td>
                 <td style="padding:7px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${getPaymentMethodLabel(f)}</td>
@@ -3947,31 +3947,33 @@ function renderFixas() {
               </tr>`;
           }).join('')}
           ${consMonthly>0?`
-            <tr style="background:#fff7ed">
+            <tr style="background:${isConsPaid(m,'m')?'var(--green-bg)':'rgba(251,191,36,0.06)'};opacity:${isConsPaid(m,'m')?0.7:1}">
               <td style="padding:7px 10px;text-align:center">
                 <input type="checkbox" ${isConsPaid(m,'m')?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)">
               </td>
-              <td style="padding:7px 10px;font-weight:600;color:#9a3412">Consórcio Mensal</td>
+              <td style="padding:7px 10px;font-weight:600;color:${isConsPaid(m,'m')?'var(--text3)':'var(--amber)'};text-decoration:${isConsPaid(m,'m')?'line-through':'none'}">Consórcio Mensal</td>
               <td style="padding:7px 10px">1</td>
               <td style="padding:7px 10px;text-align:center" title="🏦 Consórcios">🏦</td>
               <td style="padding:7px 10px">💵</td>
-              <td style="padding:7px 10px;text-align:right;color:#9a3412">R$ ${fmt(consMonthly)}</td>
+              <td style="padding:7px 10px;text-align:right;color:${isConsPaid(m,'m')?'var(--text3)':'var(--amber)'};text-decoration:${isConsPaid(m,'m')?'line-through':'none'}">R$ ${fmt(consMonthly)}</td>
               <td></td>
             </tr>
           `:''}
-          ${weeklyItems.map((w,i)=>`
-            <tr style="background:${i%2===0?'#faf5ff':'#f5f3ff'}">
+          ${weeklyItems.map((w,i)=>{
+            const wPaid = isWeeklyConsPaid(w.id);
+            return `
+            <tr style="background:${wPaid?'var(--green-bg)':i%2===0?'var(--accent-bg)':'rgba(124,106,247,0.06)'};opacity:${wPaid?0.7:1}">
               <td style="padding:7px 10px;text-align:center">
-                <input type="checkbox" ${isWeeklyConsPaid(w.id)?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)">
+                <input type="checkbox" ${wPaid?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)">
               </td>
-              <td style="padding:7px 10px;font-weight:600;color:#6b21a8">Consórcio Semanal ${w.label}</td>
+              <td style="padding:7px 10px;font-weight:600;color:${wPaid?'var(--text3)':'var(--accent2)'};text-decoration:${wPaid?'line-through':'none'}">Consórcio Semanal ${w.label}</td>
               <td style="padding:7px 10px">${parseInt((w.label||'').split('/')[0],10) || 1}</td>
               <td style="padding:7px 10px;text-align:center" title="🏦 Consórcios">🏦</td>
               <td style="padding:7px 10px">💵</td>
-              <td style="padding:7px 10px;text-align:right;color:#6b21a8">R$ ${fmt(w.amount)}</td>
+              <td style="padding:7px 10px;text-align:right;color:${wPaid?'var(--text3)':'var(--accent2)'};text-decoration:${wPaid?'line-through':'none'}">R$ ${fmt(w.amount)}</td>
               <td></td>
             </tr>
-          `).join('')}
+          `}).join('')}
         </tbody>
         <tfoot><tr style="background:var(--bg3);color:#fff;font-weight:700">
           <td></td><td style="padding:8px 10px">TOTAL</td><td></td><td></td><td></td>
@@ -4036,19 +4038,19 @@ function renderHistorico() {
   return `
     <div class="alert alert-info" style="margin-bottom:12px">Atualiza automaticamente com os lançamentos e ações do app.</div>
     ${items.length ? `
-      <div style="border-radius:var(--radius);border:1px solid var(--border);overflow:hidden">
-        <table style="font-size:12px;width:100%">
-          <thead><tr style="background:var(--bg3);color:#fff">
+      <div style="border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;background:var(--bg2)">
+        <table style="font-size:12px;width:100%;color:var(--text);background:var(--bg2)">
+          <thead><tr style="background:var(--bg3);color:var(--text)">
             <th style="padding:8px 10px;text-align:left;width:120px">Data/Hora</th>
             <th style="padding:8px 10px;text-align:left;width:95px">Mês</th>
             <th style="padding:8px 10px;text-align:left">Atividade</th>
           </tr></thead>
           <tbody>
             ${items.map((it, i)=>`
-              <tr style="background:${i%2===0?'transparent':'rgba(255,255,255,0.02)'}">
-                <td style="padding:7px 10px;color:var(--text2)">${fmtDt(it.ts)}</td>
-                <td style="padding:7px 10px;color:var(--text)">${fullMonthName(it.month)}</td>
-                <td style="padding:7px 10px;color:#0f172a">${it.message}</td>
+              <tr style="background:${i%2===0?'var(--bg2)':'var(--bg3)'}">
+                <td style="padding:7px 10px;color:var(--text2);font-family:var(--mono);font-size:11px">${fmtDt(it.ts)}</td>
+                <td style="padding:7px 10px;color:var(--accent2);font-weight:600">${fullMonthName(it.month)}</td>
+                <td style="padding:7px 10px;color:var(--text)">${it.message}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -4268,7 +4270,7 @@ function renderReceitas() {
                     <input type="checkbox" ${r.received?'checked':''} onchange="toggleIncomeReceived(${m},${i})" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)">
                   </td>
                   <td style="padding:7px 10px">${toDay(r.day)}</td>
-                  <td style="padding:7px 10px;font-weight:600;color:${r.received?'#94a3b8':'#1e293b'};text-decoration:${r.received?'line-through':'none'}">${r.desc}</td>
+                  <td style="padding:7px 10px;font-weight:600;color:${r.received?'var(--text3)':'var(--text)'};text-decoration:${r.received?'line-through':'none'}">${r.desc}</td>
                   <td style="padding:7px 10px;text-align:right">
                     <span class="edit-val" style="color:var(--text)" onclick="editIncome(${m},${i},${val})">
                       R$ ${fmt(val)}
@@ -4486,9 +4488,9 @@ function renderVariaveis() {
               </button>
               ${state.varTableFilterMenu==='category' ? `
                 <div style="position:absolute;top:100%;left:0;z-index:20;min-width:180px;background:var(--bg2);border:1px solid #cbd5e1;border-radius:var(--radius);box-shadow:0 10px 30px rgba(15,23,42,.18);padding:6px">
-                  <button onclick="setVarTableCategoryFilter('')" style="display:block;width:100%;text-align:left;border:none;background:${!validCategoryFilter?'#eff6ff':'transparent'};color:#0f172a;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">Todas</button>
+                  <button onclick="setVarTableCategoryFilter('')" style="display:block;width:100%;text-align:left;border:none;background:${!validCategoryFilter?'var(--accent-bg)':'transparent'};color:var(--text);padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">Todas</button>
                   ${categoryFilterOptions.map(opt=>`
-                    <button onclick="setVarTableCategoryFilter('${opt.id}')" style="display:block;width:100%;text-align:left;border:none;background:${validCategoryFilter===opt.id?'#eff6ff':'transparent'};color:#0f172a;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">${opt.label}</button>
+                    <button onclick="setVarTableCategoryFilter('${opt.id}')" style="display:block;width:100%;text-align:left;border:none;background:${validCategoryFilter===opt.id?'var(--accent-bg)':'transparent'};color:var(--text);padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">${opt.label}</button>
                   `).join('')}
                 </div>
               ` : ''}
@@ -4501,9 +4503,9 @@ function renderVariaveis() {
               </button>
               ${state.varTableFilterMenu==='method' ? `
                 <div style="position:absolute;top:100%;left:0;z-index:20;min-width:180px;background:var(--bg2);border:1px solid #cbd5e1;border-radius:var(--radius);box-shadow:0 10px 30px rgba(15,23,42,.18);padding:6px">
-                  <button onclick="setVarTableMethodFilter('')" style="display:block;width:100%;text-align:left;border:none;background:${!validMethodFilter?'#eff6ff':'transparent'};color:#0f172a;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">Todos</button>
+                  <button onclick="setVarTableMethodFilter('')" style="display:block;width:100%;text-align:left;border:none;background:${!validMethodFilter?'var(--accent-bg)':'transparent'};color:var(--text);padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">Todos</button>
                   ${methodFilterOptions.map(opt=>`
-                    <button onclick="setVarTableMethodFilter('${opt.value}')" style="display:block;width:100%;text-align:left;border:none;background:${validMethodFilter===opt.value?'#eff6ff':'transparent'};color:#0f172a;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">${opt.label}</button>
+                    <button onclick="setVarTableMethodFilter('${opt.value}')" style="display:block;width:100%;text-align:left;border:none;background:${validMethodFilter===opt.value?'var(--accent-bg)':'transparent'};color:var(--text);padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px">${opt.label}</button>
                   `).join('')}
                 </div>
               ` : ''}
@@ -4709,14 +4711,15 @@ function renderConsorcios() {
           ${monthNums.map((m,i)=>{
             const cm=consM[m]||0, cs=consS[m]||0, rv=m===2?5900:m===10?5340:0;
             const csPaid=consWeeklySchedule.filter(w=>w.month===m && isWeeklyConsPaid(w.id)).reduce((s,w)=>s+w.amount,0);
-            return `<tr style="background:${i%2===0?'transparent':'rgba(255,255,255,0.02)'}">
-              <td style="padding:7px 10px;font-weight:600">${months[i]}</td>
-              <td style="padding:7px 10px;text-align:right;color:var(--amber)">${fmt(cm)}</td>
-              <td style="padding:7px 10px;text-align:center">${cm>0?`<input type="checkbox" ${isConsPaid(m,'m')?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)">`:'-'}</td>
-              <td style="padding:7px 10px;text-align:right;color:${cs>0?'#7c3aed':'#cbd5e1'}">${cs>0?fmt(cs):'-'}</td>
-              <td style="padding:7px 10px;text-align:right;color:${csPaid>0?'#16a34a':'#cbd5e1'}">${csPaid>0?fmt(csPaid):'-'}</td>
+            const mPaid = isConsPaid(m,'m');
+            return `<tr style="background:${mPaid?'var(--green-bg)':i%2===0?'transparent':'rgba(255,255,255,0.02)'};opacity:${mPaid?0.7:1}">
+              <td style="padding:7px 10px;font-weight:600;text-decoration:${mPaid?'line-through':'none'};color:${mPaid?'var(--text3)':'var(--text)'}">${months[i]}</td>
+              <td style="padding:7px 10px;text-align:right;color:var(--amber);text-decoration:${mPaid?'line-through':'none'}">${fmt(cm)}</td>
+              <td style="padding:7px 10px;text-align:center">${cm>0?`<input type="checkbox" ${mPaid?'checked':''} onchange="toggleConsPaid(${m},'m')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)">`:'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${cs>0?'var(--accent)':'var(--text3)'}">${cs>0?fmt(cs):'-'}</td>
+              <td style="padding:7px 10px;text-align:right;color:${csPaid>0?'var(--green)':'var(--text3)'}">${csPaid>0?fmt(csPaid):'-'}</td>
               <td style="padding:7px 10px;text-align:right;font-weight:700">${fmt(cm+cs)}</td>
-              <td style="padding:7px 10px;text-align:right;font-weight:${rv>0?700:400};color:${rv>0?'#16a34a':'#cbd5e1'}">${rv>0?`+R$ ${fmt(rv)}`:'-'}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:${rv>0?700:400};color:${rv>0?'var(--green)':'var(--text3)'}">${rv>0?`+R$ ${fmt(rv)}`:'-'}</td>
             </tr>`;
           }).join('')}
         </tbody>
@@ -4739,13 +4742,15 @@ function renderConsorcios() {
           <th style="padding:8px 10px;text-align:center">Pago</th>
         </tr></thead>
         <tbody>
-          ${consWeeklySchedule.map((w,i)=>`
-            <tr style="background:${i%2===0?'transparent':'rgba(255,255,255,0.02)'}">
-              <td style="padding:7px 10px">${w.label}</td>
-              <td style="padding:7px 10px;text-align:right">${fmt(w.amount)}</td>
-              <td style="padding:7px 10px;text-align:center"><input type="checkbox" ${isWeeklyConsPaid(w.id)?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)"></td>
+          ${consWeeklySchedule.map((w,i)=>{
+            const wPaid = isWeeklyConsPaid(w.id);
+            return `
+            <tr style="background:${wPaid?'var(--green-bg)':i%2===0?'transparent':'rgba(255,255,255,0.02)'};opacity:${wPaid?0.7:1}">
+              <td style="padding:7px 10px;text-decoration:${wPaid?'line-through':'none'};color:${wPaid?'var(--text3)':'var(--text)'}">${w.label}</td>
+              <td style="padding:7px 10px;text-align:right;text-decoration:${wPaid?'line-through':'none'};color:${wPaid?'var(--text3)':'var(--text)'}">${fmt(w.amount)}</td>
+              <td style="padding:7px 10px;text-align:center"><input type="checkbox" ${wPaid?'checked':''} onchange="toggleWeeklyConsPaid('${w.id}')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)"></td>
             </tr>
-          `).join('')}
+          `}).join('')}
         </tbody>
       </table>
     </div>
